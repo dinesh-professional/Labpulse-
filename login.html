@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabPulse — Sign In</title>
+  <meta name="description" content="Sign in to the LabPulse laboratory management platform.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            vortex: {
+              black: '#0A0D12',
+              card: '#121722',
+              border: '#222A3A',
+              white: '#F8FAFC',
+              gray: '#8A99AD',
+              cyan: '#00F5D4',
+              emerald: '#10B981',
+              amber: '#F59E0B',
+              rose: '#F43F5E',
+              violet: '#A855F7',
+            }
+          },
+          fontFamily: {
+            display: ['"Inter Tight"', 'Inter', 'sans-serif'],
+            sans: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+            code: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-vortex-black text-vortex-white font-sans antialiased min-h-screen flex flex-col overflow-x-hidden relative">
+
+  <!-- Animated Background Orbs -->
+  <div class="vortex-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+  </div>
+
+  <a href="#login-card" class="skip-link">SKIP TO SIGN IN</a>
+
+  <header class="glass-nav relative z-10 w-full px-6 sm:px-10 py-4 border-b border-vortex-border flex justify-between items-center">
+    <a href="index.html" class="text-sm font-display font-black tracking-tighter text-vortex-white flex items-center space-x-2">
+      <span class="w-3 h-3 bg-vortex-cyan inline-block"></span>
+      <span>LABPULSE</span>
+    </a>
+    <span class="font-mono text-xs text-vortex-gray hidden sm:inline">LABORATORY MANAGEMENT PLATFORM</span>
+  </header>
+
+  <main class="relative z-10 flex-1 flex items-center justify-center px-6 py-12">
+    <div id="session-check" class="font-mono text-xs text-vortex-gray" role="status">CHECKING SESSION…</div>
+
+    <div id="login-card" class="hidden w-full max-w-md glass-card p-8">
+      <h1 class="text-3xl font-display font-black uppercase tracking-tight mb-1">Sign in to LabPulse</h1>
+      <p class="font-mono text-xs text-vortex-gray mb-8">LABORATORY MANAGEMENT PLATFORM</p>
+
+      <div id="login-error" class="hidden mb-6 p-4 border border-vortex-rose/50 bg-vortex-rose/10 font-mono text-xs text-vortex-rose" role="alert"></div>
+
+      <form id="login-form" class="space-y-6 font-mono text-xs" novalidate>
+        <div>
+          <label for="login-email" class="block text-vortex-gray uppercase mb-2">Email *</label>
+          <input type="email" id="login-email" name="email" required autocomplete="email" autocapitalize="none" spellcheck="false"
+            class="w-full glass-input py-3 px-4 text-vortex-white focus:outline-none focus:border-vortex-cyan transition-colors">
+          <p id="email-error" class="hidden text-vortex-rose text-[11px] mt-2">Enter a valid email address.</p>
+        </div>
+
+        <div>
+          <label for="login-password" class="block text-vortex-gray uppercase mb-2">Password *</label>
+          <div class="relative">
+            <input type="password" id="login-password" name="password" required autocomplete="current-password"
+              class="w-full glass-input py-3 px-4 pr-20 text-vortex-white focus:outline-none focus:border-vortex-cyan transition-colors">
+            <button type="button" id="toggle-password" class="absolute right-2 top-1/2 -translate-y-1/2 text-vortex-gray hover:text-vortex-white text-[11px] px-2 py-1 min-h-[44px]" aria-pressed="false" aria-controls="login-password">SHOW</button>
+          </div>
+          <p id="password-error" class="hidden text-vortex-rose text-[11px] mt-2">Password is required.</p>
+        </div>
+
+        <div class="flex justify-end">
+          <a href="forgot-password.html" class="text-vortex-cyan hover:text-vortex-white transition-colors uppercase">Forgot Password?</a>
+          <span class="mx-2">|</span>
+          <a href="signup.html" class="text-vortex-cyan hover:text-vortex-white transition-colors uppercase">Don't have an account? Sign Up</a>
+        </div>
+
+        <button type="submit" id="login-submit" class="w-full py-4 bg-vortex-cyan text-vortex-black font-bold text-sm uppercase hover:bg-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]">
+          LOGIN
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="glass-nav relative z-10 w-full px-6 sm:px-10 py-6 border-t border-vortex-border font-mono text-xs text-vortex-gray flex justify-between">
+    <span>LABPULSE LIMS PLATFORM</span>
+    <a href="index.html" class="hover:text-vortex-white transition-colors">← PUBLIC CATALOG</a>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var checking = document.getElementById('session-check');
+      var card = document.getElementById('login-card');
+      var form = document.getElementById('login-form');
+      var emailInput = document.getElementById('login-email');
+      var passwordInput = document.getElementById('login-password');
+      var submitBtn = document.getElementById('login-submit');
+      var errorBox = document.getElementById('login-error');
+      var emailError = document.getElementById('email-error');
+      var passwordError = document.getElementById('password-error');
+      var toggleBtn = document.getElementById('toggle-password');
+
+      function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.classList.remove('hidden');
+      }
+      function clearError() {
+        errorBox.classList.add('hidden');
+        errorBox.textContent = '';
+      }
+
+      toggleBtn.addEventListener('click', function () {
+        var showing = passwordInput.type === 'text';
+        passwordInput.type = showing ? 'password' : 'text';
+        toggleBtn.textContent = showing ? 'SHOW' : 'HIDE';
+        toggleBtn.setAttribute('aria-pressed', String(!showing));
+        passwordInput.focus();
+      });
+
+      function setLoading(loading) {
+        submitBtn.disabled = loading;
+        submitBtn.textContent = loading ? 'SIGNING IN…' : 'LOGIN';
+      }
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        if (submitBtn.disabled) return; // double-submit guard (disabled buttons don't stop all submits)
+        clearError();
+        var email = emailInput.value.trim().toLowerCase();
+        var password = passwordInput.value;
+        var valid = true;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          emailError.classList.remove('hidden');
+          valid = false;
+        } else {
+          emailError.classList.add('hidden');
+        }
+        if (!password) {
+          passwordError.classList.remove('hidden');
+          valid = false;
+        } else {
+          passwordError.classList.add('hidden');
+        }
+        if (!valid) return;
+
+        setLoading(true);
+        var redirectParam = new URLSearchParams(window.location.search).get('redirect') || '';
+        try {
+          var result = await window.LabPulseAuth.login(email, password);
+          if (result.ok) {
+            // Role comes from the backend session only — never from input or storage.
+            window.LabPulseAuth.goToDashboard(result.user.role, redirectParam);
+            return;
+          }
+          if (result.status === 401) showError('Invalid email or password.');
+          else if (result.status === 403) showError('This account is deactivated. Contact an administrator.');
+          else if (result.status === 429) showError('Too many attempts. Try again in a few minutes.');
+          else if (result.status === 503 || result.status === 0) showError('Service temporarily unavailable. Try again shortly.');
+          else showError('Sign-in failed. Try again shortly.');
+        } catch (err) {
+          showError('Network error. Check your connection and try again.');
+        } finally {
+          setLoading(false);
+        }
+      });
+
+      // Authenticated users skip login (role resolved from backend session).
+      (async function init() {
+        var redirectParam = new URLSearchParams(window.location.search).get('redirect') || '';
+        try {
+          var user = await window.LabPulseAuth.initSession();
+          if (user) {
+            window.LabPulseAuth.goToDashboard(user.role, redirectParam);
+            return;
+          }
+        } catch (e) { /* fall through to login form */ }
+        checking.classList.add('hidden');
+        card.classList.remove('hidden');
+        emailInput.focus();
+      })();
+    })();
+  </script>
+</body>
+</html>

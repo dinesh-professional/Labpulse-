@@ -1,0 +1,54 @@
+{
+  "name": "labpulse",
+  "version": "0.1.0",
+  "description": "LabPulse — centralized laboratory management platform (Phase 01: foundation + database)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node scripts/smoke-auth.js && node scripts/smoke-rbac.js && node scripts/smoke-scheduling.js && node scripts/smoke-booking.js && node scripts/smoke-calibration.js && node scripts/smoke-maintenance.js && node scripts/smoke-breakage.js && node scripts/smoke-notify.js && node scripts/smoke-qr.js && node scripts/security-audit.js && node scripts/check-frontend.js && node scripts/check-auth-ui.js && node scripts/verify-module-04.js && node scripts/verify-database-schema.js && node scripts/verify-module-05.js && node scripts/verify-module-06.js && node scripts/verify-module-07.js && node scripts/verify-module-08.js && node scripts/verify-module-09.js && node scripts/verify-module-10.js && node scripts/verify-module-11.js",
+    "build": "node scripts/build-verify.js",
+    "test:unit": "node tests/unit/time-and-scheduling.test.js && node tests/unit/tokens-and-security.test.js && node tests/unit/lifecycle-and-state.test.js && node tests/unit/analytics-helpers.test.js",
+    "test:integration": "node tests/integration/api-contracts.test.js && node tests/integration/rbac-and-scoping.test.js",
+    "test:security": "node scripts/security-audit.js && node tests/security/security-regression.test.js",
+    "test:frontend": "node scripts/check-frontend.js && node scripts/check-auth-ui.js && node tests/frontend/accessibility-and-dom.test.js",
+    "test:e2e": "node tests/e2e/core-workflows.test.js",
+    "test:migrations": "node scripts/verify-database-schema.js && node tests/migrations/migration-integrity.test.js",
+    "test:ci": "node scripts/verify-module-04.js && node scripts/verify-module-05.js && node scripts/verify-module-06.js && node scripts/verify-module-07.js && node scripts/verify-module-08.js && node scripts/verify-module-09.js && node scripts/verify-module-10.js && node scripts/verify-module-11.js && node scripts/verify-module-12.js && node scripts/verify-module-13.js && node scripts/verify-module-14.js && node scripts/verify-module-15.js && node scripts/verify-module-16.js",
+    "test:auth": "node scripts/check-auth-ui.js && node scripts/verify-module-04.js",
+    "test:db": "node scripts/verify-database-schema.js && node scripts/verify-module-05.js",
+    "test:backend": "node scripts/verify-module-06.js",
+    "test:scheduling": "node scripts/verify-module-07.js",
+    "test:lifecycle": "node scripts/verify-module-08.js",
+    "test:qr": "node scripts/verify-module-09.js",
+    "test:notifications": "node scripts/verify-module-10.js",
+    "test:dashboards": "node scripts/verify-module-11.js",
+    "test:users": "node scripts/verify-module-12.js",
+    "test:module-12": "node scripts/verify-module-12.js",
+    "test:audit": "node scripts/verify-module-13.js",
+    "test:module-14": "node scripts/verify-module-14.js",
+    "test:module-15": "node scripts/verify-module-15.js",
+    "test:module-16": "node scripts/verify-module-16.js",
+    "test:module-17": "node scripts/verify-module-17.js",
+    "seed:admin": "node scripts/seed-admin.js",
+    "seed:catalog": "node scripts/seed-catalog.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.7.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.5.3",
+    "nodemailer": "^10.0.0"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "mongodb-memory-server": "^11.2.0"
+  }
+}

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabPulse — Sign Up</title>
+  <meta name="description" content="Sign up for the LabPulse laboratory management platform.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            vortex: {
+              black: '#0A0D12',
+              card: '#121722',
+              border: '#222A3A',
+              white: '#F8FAFC',
+              gray: '#8A99AD',
+              cyan: '#00F5D4',
+              emerald: '#10B981',
+              amber: '#F59E0B',
+              rose: '#F43F5E',
+              violet: '#A855F7',
+            }
+          },
+          fontFamily: {
+            display: ['"Inter Tight"', 'Inter', 'sans-serif'],
+            sans: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+            code: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body class="bg-vortex-black text-vortex-white font-sans antialiased min-h-screen flex flex-col overflow-x-hidden relative">
+
+  <!-- Animated Background Orbs -->
+  <div class="vortex-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+  </div>
+
+  <a href="#signup-card" class="skip-link">SKIP TO SIGN UP</a>
+
+  <header class="glass-nav relative z-10 w-full px-6 sm:px-10 py-4 border-b border-vortex-border flex justify-between items-center">
+    <a href="index.html" class="text-sm font-display font-black tracking-tighter text-vortex-white flex items-center space-x-2">
+      <span class="w-3 h-3 bg-vortex-cyan inline-block"></span>
+      <span>LABPULSE</span>
+    </a>
+    <span class="font-mono text-xs text-vortex-gray hidden sm:inline">LABORATORY MANAGEMENT PLATFORM</span>
+  </header>
+
+  <main class="relative z-10 flex-1 flex items-center justify-center px-6 py-12">
+    <div id="session-check" class="font-mono text-xs text-vortex-gray" role="status">CHECKING SESSION…</div>
+
+    <div id="signup-card" class="hidden w-full max-w-md glass-card p-8">
+
+      <form id="signup-form" class="space-y-6 font-mono text-xs" novalidate>
+
+        <div>
+          <label for="signup-name" class="block text-vortex-gray uppercase mb-2">Full Name *</label>
+          <input type="text" id="signup-name" name="name" required autocomplete="name" spellcheck="false"
+            class="w-full glass-input py-3 px-4 text-vortex-white focus:outline-none focus:border-vortex-cyan transition-colors">
+          <p id="signup-name-error" class="hidden text-vortex-rose text-[11px] mt-2">Full name is required.</p>
+        </div>
+
+        <div>
+          <label for="signup-email" class="block text-vortex-gray uppercase mb-2">Email *</label>
+          <input type="email" id="signup-email" name="email" required autocomplete="email" autocapitalize="none" spellcheck="false"
+            class="w-full glass-input py-3 px-4 text-vortex-white focus:outline-none focus:border-vortex-cyan transition-colors">
+          <p id="signup-email-error" class="hidden text-vortex-rose text-[11px] mt-2">Enter a valid email address.</p>
+        </div>
+
+        <div>
+          <label for="signup-password" class="block text-vortex-gray uppercase mb-2">Password *</label>
+          <div class="relative">
+            <input type="password" id="signup-password" name="password" required autocomplete="current-password"
+              class="w-full glass-input py-3 px-4 pr-20 text-vortex-white focus:outline-none focus:border-vortex-cyan transition-colors">
+            <button type="button" id="toggle-password" class="absolute right-2 top-1/2 -translate-y-1/2 text-vortex-gray hover:text-vortex-white text-[11px] px-2 py-1 min-h-[44px]" aria-pressed="false" aria-controls="signup-password">SHOW</button>
+          </div>
+          <p id="signup-password-error" class="hidden text-vortex-rose text-[11px] mt-2">Password must be at least 8 characters.</p>
+        </div>
+
+        <div>
+          <label for="signup-confirm-password" class="block text-vortex-gray uppercase mb-2">Confirm Password *</label>
+          <input type="password" id="signup-confirm-password" name="confirmPassword" required autocomplete="new-password"
+            class="w-full glass-input py-3 px-4 text-vortex-white focus:outline-none focus:border-vortex-cyan transition-colors">
+          <p id="signup-confirm-error" class="hidden text-vortex-rose text-[11px] mt-2">Passwords do not match.</p>
+        </div>
+
+        <div>
+          <label for="signup-department" class="block text-vortex-gray uppercase mb-2">Department</label>
+          <select id="signup-department" name="department"
+            class="w-full glass-input py-3 px-4 text-vortex-white focus:outline-none focus:border-vortex-cyan transition-colors">
+            <option value="" style="background:#0e131e; color:#fff;">SELECT DEPARTMENT</option>
+            <option value="Chemistry" style="background:#0e131e; color:#fff;">Chemistry</option>
+            <option value="Materials Science" style="background:#0e131e; color:#fff;">Materials Science</option>
+            <option value="Biology" style="background:#0e131e; color:#fff;">Biology</option>
+            <option value="Cell Biology" style="background:#0e131e; color:#fff;">Cell Biology</option>
+            <option value="Genomics Core" style="background:#0e131e; color:#fff;">Genomics Core</option>
+            <option value="Physics" style="background:#0e131e; color:#fff;">Physics</option>
+            <option value="Chemical Engineering" style="background:#0e131e; color:#fff;">Chemical Engineering</option>
+            <option value="Biomedical Engineering" style="background:#0e131e; color:#fff;">Biomedical Engineering</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="signup-student-id" class="block text-vortex-gray uppercase mb-2">Student ID</label>
+          <input type="text" id="signup-student-id" name="studentId"
+            class="w-full glass-input py-3 px-4 text-vortex-white focus:outline-none focus:border-vortex-cyan transition-colors">
+        </div>
+
+        <div>
+          <label for="signup-year" class="block text-vortex-gray uppercase mb-2">Year</label>
+          <input type="number" id="signup-year" name="year" min="1" max="6"
+            class="w-full glass-input py-3 px-4 text-vortex-white focus:outline-none focus:border-vortex-cyan transition-colors">
+        </div>
+
+        <div>
+          <label for="signup-section" class="block text-vortex-gray uppercase mb-2">Section</label>
+          <input type="text" id="signup-section" name="section"
+            class="w-full glass-input py-3 px-4 text-vortex-white focus:outline-none focus:border-vortex-cyan transition-colors">
+        </div>
+
+        <div class="flex justify-end">
+          <a href="login.html" class="text-vortex-cyan hover:text-vortex-white transition-colors uppercase">Already have an account? Log in</a>
+        </div>
+
+        <button type="submit" id="signup-submit" class="w-full py-4 bg-vortex-cyan text-vortex-black font-bold text-sm uppercase hover:bg-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]">
+          SIGN UP
+        </button>
+      </form>
+
+      <div id="signup-success" class="hidden mt-6 p-4 border border-emerald-500/60 bg-emerald-500/10 backdrop-blur-md font-mono text-emerald-400 text-xs text-center rounded">
+        Account created successfully.
+        <p class="mt-2">Please check your email to activate your account.</p>
+        <button id="back-to-login" class="mt-3 w-full py-3 bg-vortex-cyan text-vortex-black font-bold text-sm uppercase hover:bg-white transition-colors min-h-[44px]">Back to Login</button>
+    </div>
+
+    </div>
+  </main>
+
+  <footer class="glass-nav relative z-10 w-full px-6 sm:px-10 py-6 border-t border-vortex-border font-mono text-xs text-vortex-gray flex justify-between">
+    <span>LABPULSE LIMS PLATFORM</span>
+    <a href="index.html" class="hover:text-vortex-white transition-colors">← PUBLIC CATALOG</a>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var checking = document.getElementById('session-check');
+      var card = document.getElementById('signup-card');
+      var form = document.getElementById('signup-form');
+      var successDiv = document.getElementById('signup-success');
+      var backBtn = document.getElementById('back-to-login');
+      var nameInput = document.getElementById('signup-name');
+      var emailInput = document.getElementById('signup-email');
+      var passwordInput = document.getElementById('signup-password');
+      var confirmInput = document.getElementById('signup-confirm-password');
+      var submitBtn = document.getElementById('signup-submit');
+      var nameError = document.getElementById('signup-name-error');
+      var emailError = document.getElementById('signup-email-error');
+      var passwordError = document.getElementById('signup-password-error');
+      var confirmError = document.getElementById('signup-confirm-error');
+      var toggleBtn = document.getElementById('toggle-password');
+
+      function showError(field, errorElem, msg) {
+        if (errorElem) {
+          errorElem.textContent = msg;
+          errorElem.classList.remove('hidden');
+        }
+        if (field) field.classList.add('border-vortex-rose');
+      }
+      function clearError(field, errorElem) {
+        if (errorElem) {
+          errorElem.classList.add('hidden');
+          errorElem.textContent = '';
+        }
+        if (field) field.classList.remove('border-vortex-rose');
+      }
+
+      toggleBtn.addEventListener('click', function () {
+        var showing = passwordInput.type === 'text';
+        passwordInput.type = showing ? 'password' : 'text';
+        confirmInput.type = showing ? 'password' : 'text';
+        toggleBtn.textContent = showing ? 'SHOW' : 'HIDE';
+        toggleBtn.setAttribute('aria-pressed', String(!showing));
+        passwordInput.focus();
+      });
+
+      function setLoading(loading) {
+        submitBtn.disabled = loading;
+        submitBtn.textContent = loading ? 'SIGNING UP…' : 'SIGN UP';
+      }
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        if (submitBtn.disabled) return;
+        // clear previous errors
+        clearError(nameInput, nameError);
+        clearError(emailInput, emailError);
+        clearError(passwordInput, passwordError);
+        clearError(confirmInput, confirmError);
+        emailInput.classList.remove('border-vortex-rose');
+        passwordInput.classList.remove('border-vortex-rose');
+
+        var name = nameInput.value.trim();
+        var email = emailInput.value.trim().toLowerCase();
+        var password = passwordInput.value;
+        var confirmPassword = confirmInput.value;
+        var deptInput = document.getElementById('signup-department');
+        var stuIdInput = document.getElementById('signup-student-id');
+        var yrInput = document.getElementById('signup-year');
+        var secInput = document.getElementById('signup-section');
+        var department = deptInput ? deptInput.value.trim() : '';
+        var studentId = stuIdInput ? stuIdInput.value.trim() : '';
+        var year = yrInput ? yrInput.value.trim() : '';
+        var section = secInput ? secInput.value.trim() : '';
+
+        var valid = true;
+
+        // name
+        if (!name) {
+          showError(nameInput, nameError, 'Full name is required.');
+          valid = false;
+        }
+
+        // email format
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          showError(emailInput, emailError, 'Enter a valid email address.');
+          valid = false;
+        } else {
+          clearError(emailInput, emailError);
+        }
+
+        // password match
+        if (!password) {
+          showError(passwordInput, passwordError, 'Password is required.');
+          valid = false;
+        } else if (password.length < 8) {
+          showError(passwordInput, passwordError, 'Password must be at least 8 characters.');
+          valid = false;
+        } else if (password !== confirmPassword) {
+          showError(confirmInput, confirmError, 'Passwords do not match.');
+          valid = false;
+        } else {
+          clearError(passwordInput, passwordError);
+          clearError(confirmInput, confirmError);
+        }
+
+        if (!valid) return;
+
+        setLoading(true);
+        try {
+          var payload = {
+            name: name,
+            email: email,
+            password: password,
+            confirmPassword: confirmPassword,
+            department: department || undefined,
+            studentId: studentId || undefined,
+            year: year || undefined,
+            section: section || undefined,
+          };
+          var result = await window.LabPulseAuth.signup(payload);
+          if (result.ok) {
+            // Show success, hide form
+            card.classList.add('hidden');
+            successDiv.classList.remove('hidden');
+            return;
+          }
+          // handle known error codes
+          var errMsg = result.error && result.error.message;
+          if (result.status === 409) {
+            showError(emailInput, emailError, errMsg || 'Email already registered.');
+          } else if (result.status === 400) {
+            showError(emailInput, emailError, errMsg || 'Invalid input.');
+          } else if (result.status === 429) {
+            showError(emailInput, emailError, 'Too many attempts. Try again in a few minutes.');
+          } else if (result.status === 503 || result.status === 0) {
+            showError(emailInput, emailError, 'Service temporarily unavailable. Try again shortly.');
+          } else {
+            showError(emailInput, emailError, errMsg || 'Sign-up failed. Try again shortly.');
+          }
+        } catch (err) {
+          showError(emailInput, emailError, 'Network error. Check your connection and try again.');
+        } finally {
+          setLoading(false);
+        }
+      });
+
+      // back to login
+      backBtn.addEventListener('click', function () {
+        window.location.href = 'login.html';
+      });
+
+      // init: check session, show form
+      (async function init() {
+        try {
+          var user = await window.LabPulseAuth.initSession();
+          if (user) {
+            window.LabPulseAuth.goToDashboard(user.role);
+            return;
+          }
+        } catch (e) { /* fall through to signup form */ }
+        checking.classList.add('hidden');
+        card.classList.remove('hidden');
+        nameInput.focus();
+      })();
+    })();
+  </script>
+</body>
+</html>

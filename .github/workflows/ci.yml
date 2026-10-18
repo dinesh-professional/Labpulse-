@@ -1,0 +1,63 @@
+name: LabPulse Continuous Integration Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-verify:
+    name: Test & Build (${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [ 20.x, 22.x ]
+
+    env:
+      NODE_ENV: test
+      PORT: 3000
+      JWT_ACCESS_SECRET: test_ci_jwt_access_secret_32_characters_minimum_entropy_1234
+      JWT_REFRESH_SECRET: test_ci_jwt_refresh_secret_32_characters_minimum_entropy_5678
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: 1. Build & Compilation Verification
+        run: npm run build
+
+      - name: 2. Static Frontend & Accessibility Integrity
+        run: npm run test:frontend
+
+      - name: 3. Supabase Schema & Migration DDL Integrity
+        run: npm run test:migrations
+
+      - name: 4. Unit Test Suite (Scheduling, Tokens, Lifecycle, Analytics)
+        run: npm run test:unit
+
+      - name: 5. Security & RBAC Regression Battery
+        run: npm run test:security
+
+      - name: 6. API Contracts & Integration Suite
+        run: npm run test:integration
+
+      - name: 7. End-to-End Core Lifecycle Workflows
+        run: npm run test:e2e
+
+      - name: 8. Module Verification Batteries (Modules 04 - 15)
+        run: npm run test:ci

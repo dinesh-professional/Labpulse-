@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabPulse — Educational & Research Laboratory Instrument System</title>
+  <meta name="description" content="Centralized Laboratory Instrument, Calibration, Booking, and Maintenance Management Platform for universities and research institutions.">
+  
+  <!-- Fonts: Inter Tight & Inter (Modern, Clean, Human Typography everywhere) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            vortex: {
+              black: '#0A0D12',
+              card: '#121722',
+              border: '#222A3A',
+              white: '#F8FAFC',
+              gray: '#CBD5E1',
+              cyan: '#00F5D4',
+              emerald: '#10B981',
+              amber: '#F59E0B',
+              rose: '#F43F5E',
+              violet: '#A855F7',
+            }
+          },
+          fontFamily: {
+            display: ['"Inter Tight"', 'Inter', 'sans-serif'],
+            sans: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+            code: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-vortex-black text-vortex-white font-sans antialiased selection:bg-vortex-cyan selection:text-vortex-black overflow-x-hidden min-h-screen relative">
+
+  <!-- Animated Background Orbs -->
+  <div class="vortex-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+  </div>
+
+  <!-- Skip link for keyboard users -->
+  <a href="#main" class="skip-link">SKIP TO CONTENT</a>
+
+  <!-- Custom Cursor -->
+  <div id="custom-cursor" class="fixed top-0 left-0 w-3 h-3 bg-vortex-cyan rounded-full pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 transition-transform duration-75 ease-out hidden md:block"></div>
+  <div id="custom-cursor-follower" class="fixed top-0 left-0 w-10 h-10 border border-vortex-cyan rounded-full pointer-events-none z-[9998] -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-300 hidden md:block"></div>
+
+  <!-- Header & System Bar -->
+  <!-- Header & System Bar -->
+  <header class="glass-nav fixed top-0 left-0 w-full z-50 px-6 sm:px-10 py-4 border-b border-vortex-border flex justify-between items-center text-xs font-mono">
+    <div class="flex items-center space-x-6">
+      <a href="#" class="text-sm font-display font-black tracking-tighter text-vortex-white flex items-center space-x-2">
+        <span class="w-3 h-3 bg-vortex-cyan inline-block"></span>
+        <span>LABPULSE</span>
+        <span class="hidden sm:inline-block border border-vortex-border text-vortex-gray text-[10px] px-2 py-0.5 ml-2">CORE OS</span>
+      </a>
+    </div>
+    
+    <nav class="hidden lg:flex items-center space-x-7 font-bold uppercase tracking-wider" aria-label="Primary">
+      <a href="#catalog" class="nav-link text-vortex-gray hover:text-vortex-white transition-colors py-1">CATALOG <span class="nav-underline"></span></a>
+      <a href="#features" class="nav-link text-vortex-gray hover:text-vortex-white transition-colors py-1">CAPABILITIES <span class="nav-underline"></span></a>
+      <a href="#workflow" class="nav-link text-vortex-gray hover:text-vortex-white transition-colors py-1">WORKFLOW <span class="nav-underline"></span></a>
+      <a href="#roles" class="nav-link text-vortex-gray hover:text-vortex-white transition-colors py-1">ROLES <span class="nav-underline"></span></a>
+      <a href="#bookings" class="nav-link text-vortex-gray hover:text-vortex-white transition-colors py-1">RESERVATIONS <span class="nav-underline"></span></a>
+      <a href="#calibration" class="nav-link text-vortex-gray hover:text-vortex-white transition-colors py-1">CALIBRATION <span class="nav-underline"></span></a>
+      <button id="btn-open-booking" class="bg-vortex-cyan text-vortex-black px-4 py-2 font-mono font-bold hover:bg-white transition-colors duration-200 cursor-pointer">
+        + BOOK SLOT
+      </button>
+      <a href="login.html" class="border border-vortex-border text-vortex-gray hover:text-vortex-white hover:border-vortex-white px-3 py-2 transition-colors">SIGN IN</a>
+      <a href="signup.html" class="bg-white/10 border border-vortex-cyan/50 text-vortex-cyan hover:bg-vortex-cyan hover:text-vortex-black px-3 py-2 transition-colors">REGISTER</a>
+    </nav>
+
+    <!-- Mobile menu toggle (nav links are desktop-only) -->
+    <button id="btn-mobile-menu" class="lg:hidden border border-vortex-border text-vortex-white px-3 py-2 font-mono text-xs hover:border-vortex-cyan transition-colors" aria-expanded="false" aria-controls="mobile-menu">
+      MENU
+    </button>
+  </header>
+
+  <!-- Mobile navigation panel -->
+  <div id="mobile-menu" class="glass-nav fixed inset-0 z-[60] p-6 hidden flex-col lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="flex justify-between items-center border-b border-vortex-border pb-4 mb-6">
+      <div class="flex items-center space-x-2">
+        <span class="w-3 h-3 bg-vortex-cyan inline-block"></span>
+        <span class="font-mono text-xs text-vortex-cyan font-bold">LABPULSE SYSTEM NAVIGATION</span>
+      </div>
+      <button id="btn-close-menu" class="font-mono text-xs border border-vortex-border px-4 py-2 hover:border-vortex-cyan transition-colors">[CLOSE]</button>
+    </div>
+    <nav class="flex flex-col space-y-4 text-xl font-display font-black uppercase tracking-tight" aria-label="Mobile">
+      <a href="#catalog" class="hover:text-vortex-cyan transition-colors py-1">Catalog</a>
+      <a href="#features" class="hover:text-vortex-cyan transition-colors py-1">Capabilities</a>
+      <a href="#workflow" class="hover:text-vortex-cyan transition-colors py-1">Workflow</a>
+      <a href="#roles" class="hover:text-vortex-cyan transition-colors py-1">Role Portals</a>
+      <a href="#bookings" class="hover:text-vortex-cyan transition-colors py-1">Reservations</a>
+      <a href="#calibration" class="hover:text-vortex-cyan transition-colors py-1">Calibration Vault</a>
+      <a href="#certs" class="hover:text-vortex-cyan transition-colors py-1">Certifications</a>
+      <a href="#grants" class="hover:text-vortex-cyan transition-colors py-1">Research Grants</a>
+      <div class="pt-4 border-t border-vortex-border flex flex-col space-y-3 font-mono text-xs">
+        <button id="btn-open-booking-mobile" class="bg-vortex-cyan text-vortex-black px-4 py-3 font-mono text-sm font-bold text-center hover:bg-white transition-colors cursor-pointer">
+          + NEW RESERVATION
+        </button>
+        <div class="grid grid-cols-2 gap-3">
+          <a href="login.html" class="border border-vortex-border text-center text-vortex-gray px-4 py-3 font-mono text-xs font-bold hover:text-vortex-white hover:border-vortex-white transition-colors">
+            SIGN IN
+          </a>
+          <a href="signup.html" class="border border-vortex-cyan text-center text-vortex-cyan px-4 py-3 font-mono text-xs font-bold hover:bg-vortex-cyan hover:text-vortex-black transition-colors">
+            CREATE ACCOUNT
+          </a>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <main id="main">
+  <div class="relative z-10">
+
+  <!-- HERO SECTION WITH FLUID ARCHITECTURE MOTION BACKGROUND -->
+  <section id="hero" class="relative w-full px-6 sm:px-10 pt-20 pb-12 sm:pb-16 overflow-hidden border-b border-vortex-border">
+    
+    <div class="relative z-20 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      
+      <!-- Left Column: Copy & Actions -->
+      <div class="lg:col-span-7">
+        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-display font-black uppercase leading-[0.95] tracking-tighter mb-6 text-vortex-white">
+          PRECISION LABORATORY<br>
+          FLEET MANAGEMENT &amp;<br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-vortex-cyan via-emerald-400 to-white">CONFLICT-FREE SCHEDULING.</span>
+        </h1>
+
+        <p class="text-base sm:text-lg text-slate-300 max-w-2xl mb-8 font-sans leading-relaxed">
+          Orchestrate university and institutional scientific instrumentation. Enforce tiered operator qualifications, eliminate reservation collisions, issue cryptographic QR access passes, and maintain NIST-traceable calibration logs.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-4 mb-10">
+          <button onclick="quickBook('JEOL JEM-2100F TEM')" class="bg-vortex-cyan text-vortex-black px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-wider hover:bg-white transition-all duration-200 cursor-pointer shadow-lg shadow-vortex-cyan/20">
+            RESERVE INSTRUMENT →
+          </button>
+          <a href="signup.html" class="border border-vortex-cyan/60 text-vortex-cyan hover:bg-vortex-cyan/10 px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-wider transition-colors">
+            CREATE ACCOUNT
+          </a>
+          <a href="#features" class="border border-vortex-border text-slate-300 hover:text-white hover:border-slate-400 px-5 py-3.5 font-mono text-xs uppercase tracking-wider transition-colors">
+            EXPLORE CAPABILITIES ↓
+          </a>
+        </div>
+
+        <!-- Executive Metric Counters Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-vortex-border font-mono text-xs">
+          <div class="p-3.5 glass-stat border border-vortex-border">
+            <span class="text-slate-200 text-xs block uppercase font-bold tracking-wide">TOTAL INSTRUMENTS</span>
+            <span id="metric-total" class="text-2xl sm:text-3xl font-extrabold font-display text-white">42</span>
+            <span class="text-emerald-400 text-xs block mt-1 font-bold">100% CATALOGED</span>
+          </div>
+
+          <div class="p-3.5 glass-stat border border-vortex-border">
+            <span class="text-slate-200 text-xs block uppercase font-bold tracking-wide">AVAILABLE NOW</span>
+            <span id="metric-available" class="text-2xl sm:text-3xl font-extrabold font-display text-emerald-400">31</span>
+            <span class="text-slate-200 text-xs block mt-1 font-semibold">READY FOR BOOKING</span>
+          </div>
+
+          <div class="p-3.5 glass-stat border border-vortex-border">
+            <span class="text-slate-200 text-xs block uppercase font-bold tracking-wide">ACTIVE SESSIONS</span>
+            <span id="metric-active" class="text-2xl sm:text-3xl font-extrabold font-display text-cyan-300">6</span>
+            <span class="text-slate-200 text-xs block mt-1 font-semibold">INTERLOCK ARMED</span>
+          </div>
+
+          <div class="p-3.5 glass-stat border border-vortex-border">
+            <span class="text-slate-200 text-xs block uppercase font-bold tracking-wide">SERVICE / CALIBRATING</span>
+            <span id="metric-maintenance" class="text-2xl sm:text-3xl font-extrabold font-display text-amber-300">5</span>
+            <span class="text-rose-400 text-xs block mt-1 font-bold">MAINTENANCE LOCKOUT</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Product Console Preview -->
+      <div class="lg:col-span-5 relative">
+
+
+        <div class="glass-card interactive-tilt border border-vortex-cyan/40 p-6 shadow-2xl relative">
+          <!-- Terminal Header -->
+          <div class="flex justify-between items-center pb-4 mb-4 border-b border-vortex-border font-mono text-xs">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-vortex-emerald animate-pulse"></span>
+              <span class="text-white font-bold">TERMINAL // BIO-CORE-R104</span>
+            </div>
+            <span class="text-vortex-cyan text-[11px] border border-vortex-cyan/40 bg-vortex-cyan/10 px-2 py-0.5">INTERLOCK ARMED</span>
+          </div>
+
+          <!-- Live Device Telemetry -->
+          <div class="space-y-4 font-mono text-xs mb-6">
+            <div class="p-4 bg-vortex-black/80 border border-vortex-border">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-vortex-cyan font-bold text-sm">JEOL JEM-2100F TEM</span>
+                <span class="text-emerald-400 text-xs border border-emerald-400/40 bg-emerald-400/10 px-2 py-0.5 font-bold">ONLINE</span>
+              </div>
+              <p class="text-slate-200 text-xs mb-3">Field Emission Electron Microscope · Room 104</p>
+              <div class="grid grid-cols-2 gap-2 text-xs text-slate-200 border-t border-vortex-border/80 pt-2 font-medium">
+                <div><span>CERT:</span> <span class="text-vortex-cyan font-bold">LEVEL 3</span></div>
+                <div><span>CALIB:</span> <span class="text-emerald-400 font-bold">NIST PASSED</span></div>
+              </div>
+            </div>
+
+            <!-- Live Interactive Frequency Waveform -->
+            <div class="p-3 bg-vortex-black/90 border border-vortex-border">
+              <div class="flex justify-between items-center text-[10px] font-mono mb-1.5">
+                <span class="text-vortex-cyan font-bold flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-vortex-cyan animate-ping"></span>
+                  LIVE SPECTROMETRY BEAM
+                </span>
+                <span id="oscilloscope-freq" class="text-emerald-400 font-bold">599.98 MHz · OPTIMAL</span>
+              </div>
+              <canvas id="hero-oscilloscope-canvas" class="w-full h-10 block cursor-crosshair rounded bg-vortex-black" height="40"></canvas>
+            </div>
+
+            <div class="p-4 bg-vortex-black/80 border border-vortex-border">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-white font-bold text-sm">CURRENT SLOT HOLDER</span>
+                <span class="text-cyan-300 text-xs font-bold">#RES-9401</span>
+              </div>
+              <p class="text-slate-100 text-xs font-semibold">Samantha Lee (PhD) · 14:00 - 16:00</p>
+              <p class="text-slate-200 text-xs mt-1">Single-molecule cryo preparation run</p>
+            </div>
+          </div>
+
+          <!-- Quick Interactive Triggers -->
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <button onclick="quickBook('JEOL JEM-2100F TEM')" class="w-full py-2.5 bg-vortex-cyan text-vortex-black font-mono font-bold text-xs uppercase hover:bg-white transition-colors text-center cursor-pointer shadow-md">
+              BOOK EQUIPMENT
+            </button>
+            <button onclick="showCheckInPass('#RES-9401', 'BRUKER AVANCE 600MHz NMR', 'Samantha Lee')" class="w-full py-2.5 border-2 border-vortex-cyan text-vortex-cyan font-mono font-bold text-xs uppercase hover:bg-vortex-cyan hover:text-vortex-black transition-colors text-center cursor-pointer">
+              VIEW QR PASS
+            </button>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-vortex-border text-center font-mono text-xs text-slate-300 font-medium">
+            AUTHENTICATED CONSOLE DEMO · LIVE FRONTEND DISPATCH
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION: 6 CORE CAPABILITY PILLARS -->
+  <section id="features" class="w-full px-6 sm:px-10 py-20 border-b border-vortex-border bg-vortex-black">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 border-b border-vortex-border pb-6">
+        <div>
+          <span class="text-vortex-cyan font-mono text-xs uppercase tracking-widest block mb-2">CORE PLATFORM ARCHITECTURE</span>
+          <h2 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-vortex-white">INTELLIGENT SYSTEM CAPABILITIES</h2>
+        </div>
+        <p class="font-mono text-xs text-vortex-gray max-w-md">
+          Grounded in production laboratory workflows. Every feature mapped directly to existing application routes and database contracts.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Feature 1 -->
+        <div class="p-6 glass-card interactive-tilt border border-vortex-border hover:border-vortex-cyan transition-all duration-300">
+          <div class="w-10 h-10 rounded-lg bg-vortex-cyan/10 border border-vortex-cyan/30 flex items-center justify-center text-vortex-cyan mb-4 font-mono font-bold text-sm">
+            01
+          </div>
+          <h3 class="text-lg font-display font-bold uppercase text-white mb-2">FLEET CATALOG &amp; TELEMETRY</h3>
+          <p class="font-mono text-xs text-slate-400 mb-4 leading-relaxed">
+            Real-time status classification across every instrument: Available, In Session, Calibrating, and Maintenance Lockout with facility room routing.
+          </p>
+          <span class="inline-block font-mono text-[10px] text-vortex-emerald bg-vortex-emerald/10 border border-vortex-emerald/30 px-2 py-0.5">IMPLEMENTED &amp; OPERATIONAL</span>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="p-6 glass-card interactive-tilt border border-vortex-border hover:border-vortex-cyan transition-all duration-300">
+          <div class="w-10 h-10 rounded-lg bg-vortex-cyan/10 border border-vortex-cyan/30 flex items-center justify-center text-vortex-cyan mb-4 font-mono font-bold text-sm">
+            02
+          </div>
+          <h3 class="text-lg font-display font-bold uppercase text-white mb-2">CONFLICT-FREE SCHEDULING</h3>
+          <p class="font-mono text-xs text-slate-400 mb-4 leading-relaxed">
+            Deterministic time-overlap validation engine prevents multi-booking conflicts with granular start-time and duration reservation controls.
+          </p>
+          <span class="inline-block font-mono text-[10px] text-vortex-emerald bg-vortex-emerald/10 border border-vortex-emerald/30 px-2 py-0.5">IMPLEMENTED &amp; OPERATIONAL</span>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="p-6 glass-card interactive-tilt border border-vortex-border hover:border-vortex-cyan transition-all duration-300">
+          <div class="w-10 h-10 rounded-lg bg-vortex-cyan/10 border border-vortex-cyan/30 flex items-center justify-center text-vortex-cyan mb-4 font-mono font-bold text-sm">
+            03
+          </div>
+          <h3 class="text-lg font-display font-bold uppercase text-white mb-2">QR HARDWARE INTERLOCKS</h3>
+          <p class="font-mono text-xs text-slate-400 mb-4 leading-relaxed">
+            Dynamic cryptographic QR access passes generated per reservation. Terminal scanning unlocks instrument power interlocks during valid slots.
+          </p>
+          <span class="inline-block font-mono text-[10px] text-vortex-emerald bg-vortex-emerald/10 border border-vortex-emerald/30 px-2 py-0.5">IMPLEMENTED &amp; OPERATIONAL</span>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="p-6 glass-card border border-vortex-border hover:border-vortex-cyan transition-all duration-300">
+          <div class="w-10 h-10 rounded-lg bg-vortex-cyan/10 border border-vortex-cyan/30 flex items-center justify-center text-vortex-cyan mb-4 font-mono font-bold text-sm">
+            04
+          </div>
+          <h3 class="text-lg font-display font-bold uppercase text-white mb-2">OPERATOR QUALIFICATION MATRIX</h3>
+          <p class="font-mono text-xs text-slate-400 mb-4 leading-relaxed">
+            Four-tier certification framework (Level 1 Novice to Level 4 Master Trainer) enforcing rigorous safety and training prerequisite checks.
+          </p>
+          <span class="inline-block font-mono text-[10px] text-vortex-emerald bg-vortex-emerald/10 border border-vortex-emerald/30 px-2 py-0.5">IMPLEMENTED &amp; OPERATIONAL</span>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="p-6 glass-card border border-vortex-border hover:border-vortex-cyan transition-all duration-300">
+          <div class="w-10 h-10 rounded-lg bg-vortex-cyan/10 border border-vortex-cyan/30 flex items-center justify-center text-vortex-cyan mb-4 font-mono font-bold text-sm">
+            05
+          </div>
+          <h3 class="text-lg font-display font-bold uppercase text-white mb-2">NIST CALIBRATION VAULT</h3>
+          <p class="font-mono text-xs text-slate-400 mb-4 leading-relaxed">
+            Track precision tolerance drift, inspection intervals, technician records, and generate audit-ready calibration compliance certificates.
+          </p>
+          <span class="inline-block font-mono text-[10px] text-vortex-emerald bg-vortex-emerald/10 border border-vortex-emerald/30 px-2 py-0.5">IMPLEMENTED &amp; OPERATIONAL</span>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="p-6 glass-card border border-vortex-border hover:border-vortex-cyan transition-all duration-300">
+          <div class="w-10 h-10 rounded-lg bg-vortex-cyan/10 border border-vortex-cyan/30 flex items-center justify-center text-vortex-cyan mb-4 font-mono font-bold text-sm">
+            06
+          </div>
+          <h3 class="text-lg font-display font-bold uppercase text-white mb-2">INCIDENT &amp; BREAKAGE TRIAGE</h3>
+          <p class="font-mono text-xs text-slate-400 mb-4 leading-relaxed">
+            Immediate equipment fault logging with administrative lockout switches, faculty triage workflows, and permanent tamper-evident audit logs.
+          </p>
+          <span class="inline-block font-mono text-[10px] text-vortex-emerald bg-vortex-emerald/10 border border-vortex-emerald/30 px-2 py-0.5">IMPLEMENTED &amp; OPERATIONAL</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKFLOW SECTION: 5-STEP OPERATIONAL FLOW -->
+  <section id="workflow" class="w-full px-6 sm:px-10 py-20 border-b border-vortex-border bg-vortex-card/20">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 border-b border-vortex-border pb-6">
+        <div>
+          <span class="text-vortex-cyan font-mono text-xs uppercase tracking-widest block mb-2">OPERATIONAL LIFECYCLE</span>
+          <h2 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-vortex-white">HOW LABPULSE WORKS</h2>
+        </div>
+        <p class="font-mono text-xs text-vortex-gray max-w-md">
+          A closed-loop workflow ensuring equipment safety, automated compliance, and frictionless researcher access.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- Step 1 -->
+        <div class="p-5 glass-card border border-vortex-border">
+          <span class="text-vortex-cyan font-mono text-xs font-bold block mb-2">STEP 01</span>
+          <h4 class="text-base font-display font-bold uppercase text-white mb-2">DISCOVER &amp; QUALIFY</h4>
+          <p class="font-mono text-[11px] text-slate-400 leading-relaxed">
+            Browse instrument catalog and verify required operator certification levels (Novice to Master Trainer).
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="p-5 glass-card border border-vortex-border">
+          <span class="text-vortex-cyan font-mono text-xs font-bold block mb-2">STEP 02</span>
+          <h4 class="text-base font-display font-bold uppercase text-white mb-2">RESERVE SLOT</h4>
+          <p class="font-mono text-[11px] text-slate-400 leading-relaxed">
+            Select booking date, start time, and duration. Automated scheduling gates ensure clash-free reservation.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="p-5 glass-card border border-vortex-border">
+          <span class="text-vortex-cyan font-mono text-xs font-bold block mb-2">STEP 03</span>
+          <h4 class="text-base font-display font-bold uppercase text-white mb-2">ISSUE QR PASS</h4>
+          <p class="font-mono text-[11px] text-slate-400 leading-relaxed">
+            System generates a cryptographically signed QR access pass tied directly to user identity and slot time.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="p-5 glass-card border border-vortex-border">
+          <span class="text-vortex-cyan font-mono text-xs font-bold block mb-2">STEP 04</span>
+          <h4 class="text-base font-display font-bold uppercase text-white mb-2">SCAN TERMINAL</h4>
+          <p class="font-mono text-[11px] text-slate-400 leading-relaxed">
+            Scan QR code at the laboratory terminal to verify session and clear hardware power lockouts.
+          </p>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="p-5 glass-card border border-vortex-border">
+          <span class="text-vortex-cyan font-mono text-xs font-bold block mb-2">STEP 05</span>
+          <h4 class="text-base font-display font-bold uppercase text-white mb-2">LOG &amp; AUDIT</h4>
+          <p class="font-mono text-[11px] text-slate-400 leading-relaxed">
+            Run session completes, equipment logs are updated, and preventative calibration intervals refresh.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROLE-BASED WORKSPACES SECTION -->
+  <section id="roles" class="w-full px-6 sm:px-10 py-20 border-b border-vortex-border bg-vortex-black">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 border-b border-vortex-border pb-6">
+        <div>
+          <span class="text-vortex-cyan font-mono text-xs uppercase tracking-widest block mb-2">MULTI-TENANT RBAC WORKSPACES</span>
+          <h2 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-vortex-white">ROLE-SPECIFIC PORTALS</h2>
+        </div>
+        <p class="font-mono text-xs text-vortex-gray max-w-md">
+          Strict role-based access control with dedicated user interfaces for institutional stakeholders.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs">
+        <!-- Admin Card -->
+        <div class="p-6 glass-card border border-vortex-border flex flex-col justify-between hover:border-vortex-cyan transition-colors">
+          <div>
+            <div class="flex justify-between items-start mb-4">
+              <span class="text-vortex-cyan font-bold text-sm">ADMINISTRATOR</span>
+              <span class="border border-vortex-cyan/40 bg-vortex-cyan/10 text-vortex-cyan text-[10px] px-2 py-0.5">FLEET GOVERNANCE</span>
+            </div>
+            <h3 class="text-xl font-display font-bold uppercase text-white mb-3">ADMIN CONSOLE</h3>
+            <p class="text-slate-400 mb-6 leading-relaxed">
+              Full administrative fleet governance: manage user accounts, trigger maintenance lockouts, review qualification matrices, and inspect system audit logs.
+            </p>
+            <ul class="space-y-2 text-slate-300 border-t border-vortex-border pt-4 mb-6 text-[11px]">
+              <li class="flex items-center gap-2"><span class="text-vortex-cyan">✓</span> Multi-user role management</li>
+              <li class="flex items-center gap-2"><span class="text-vortex-cyan">✓</span> Hardware lockout override</li>
+              <li class="flex items-center gap-2"><span class="text-vortex-cyan">✓</span> System-wide security audit trail</li>
+            </ul>
+          </div>
+          <a href="admin.html" class="w-full py-3 border border-vortex-cyan text-vortex-cyan font-bold text-xs uppercase hover:bg-vortex-cyan hover:text-vortex-black transition-colors text-center block">
+            OPEN ADMIN CONSOLE →
+          </a>
+        </div>
+
+        <!-- Faculty Card -->
+        <div class="p-6 glass-card border border-vortex-border flex flex-col justify-between hover:border-vortex-cyan transition-colors">
+          <div>
+            <div class="flex justify-between items-start mb-4">
+              <span class="text-vortex-emerald font-bold text-sm">FACULTY / PI</span>
+              <span class="border border-vortex-emerald/40 bg-vortex-emerald/10 text-vortex-emerald text-[10px] px-2 py-0.5">LAB WORKSPACE</span>
+            </div>
+            <h3 class="text-xl font-display font-bold uppercase text-white mb-3">FACULTY WORKSPACE</h3>
+            <p class="text-slate-400 mb-6 leading-relaxed">
+              Laboratory teaching and research coordination: publish class lab timetables, manage student reservations, and triage equipment breakage incident reports.
+            </p>
+            <ul class="space-y-2 text-slate-300 border-t border-vortex-border pt-4 mb-6 text-[11px]">
+              <li class="flex items-center gap-2"><span class="text-vortex-emerald">✓</span> Class lab timetable publisher</li>
+              <li class="flex items-center gap-2"><span class="text-vortex-emerald">✓</span> Student reservation oversight</li>
+              <li class="flex items-center gap-2"><span class="text-vortex-emerald">✓</span> Rapid breakage report triage</li>
+            </ul>
+          </div>
+          <a href="faculty.html" class="w-full py-3 border border-vortex-emerald text-vortex-emerald font-bold text-xs uppercase hover:bg-vortex-emerald hover:text-vortex-black transition-colors text-center block">
+            OPEN FACULTY WORKSPACE →
+          </a>
+        </div>
+
+        <!-- Student Card -->
+        <div class="p-6 glass-card border border-vortex-border flex flex-col justify-between hover:border-vortex-cyan transition-colors">
+          <div>
+            <div class="flex justify-between items-start mb-4">
+              <span class="text-vortex-violet font-bold text-sm">STUDENT / RESEARCHER</span>
+              <span class="border border-vortex-violet/40 bg-vortex-violet/10 text-vortex-violet text-[10px] px-2 py-0.5">RESEARCH PORTAL</span>
+            </div>
+            <h3 class="text-xl font-display font-bold uppercase text-white mb-3">STUDENT PORTAL</h3>
+            <p class="text-slate-400 mb-6 leading-relaxed">
+              Self-service scientific instrumentation portal: inspect real-time equipment availability, book free research slots, and download cryptographic QR passes.
+            </p>
+            <ul class="space-y-2 text-slate-300 border-t border-vortex-border pt-4 mb-6 text-[11px]">
+              <li class="flex items-center gap-2"><span class="text-vortex-violet">✓</span> Equipment discovery &amp; timetable</li>
+              <li class="flex items-center gap-2"><span class="text-vortex-violet">✓</span> Conflict-free slot booking</li>
+              <li class="flex items-center gap-2"><span class="text-vortex-violet">✓</span> Dynamic QR check-in passes</li>
+            </ul>
+          </div>
+          <a href="student.html" class="w-full py-3 border border-vortex-violet text-vortex-violet font-bold text-xs uppercase hover:bg-vortex-violet hover:text-vortex-black transition-colors text-center block">
+            OPEN STUDENT PORTAL →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CATALOG SECTION -->
+  <section id="catalog" class="w-full px-6 sm:px-10 py-16 border-b border-vortex-border">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6 border-b border-vortex-border pb-6">
+      <div>
+        <h2 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-vortex-white">LABORATORY INSTRUMENTS</h2>
+      </div>
+      
+      <!-- Filter Buttons -->
+      <div class="flex flex-wrap gap-2 font-mono text-xs">
+        <button class="filter-btn active border border-vortex-cyan bg-vortex-cyan text-vortex-black px-3 py-1.5 font-bold uppercase transition-colors" data-cat="ALL">ALL</button>
+        <button class="filter-btn border border-vortex-border text-vortex-gray hover:text-vortex-white px-3 py-1.5 uppercase transition-colors" data-cat="SPECTROSCOPY">SPECTROSCOPY</button>
+        <button class="filter-btn border border-vortex-border text-vortex-gray hover:text-vortex-white px-3 py-1.5 uppercase transition-colors" data-cat="MICROSCOPY">MICROSCOPY</button>
+        <button class="filter-btn border border-vortex-border text-vortex-gray hover:text-vortex-white px-3 py-1.5 uppercase transition-colors" data-cat="GENOMICS">GENOMICS</button>
+        <button class="filter-btn border border-vortex-border text-vortex-gray hover:text-vortex-white px-3 py-1.5 uppercase transition-colors" data-cat="CENTRIFUGATION">CENTRIFUGATION</button>
+      </div>
+    </div>
+
+    <!-- Instrument Cards Grid -->
+    <div id="instrument-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Instrument 1 -->
+      <div class="instrument-card glass-card p-6 flex flex-col justify-between hover:border-vortex-cyan transition-all duration-300 group" data-category="MICROSCOPY">
+        <div>
+          <div class="flex justify-between items-start mb-4">
+            <span class="font-mono text-xs text-vortex-gray">#MIC-209</span>
+            <span class="status-badge bg-vortex-emerald/20 text-vortex-emerald border border-vortex-emerald/40 px-2 py-0.5 font-mono text-[10px] font-bold uppercase">AVAILABLE</span>
+          </div>
+          <h3 class="text-xl font-bold uppercase text-vortex-white group-hover:text-vortex-cyan transition-colors mb-2">JEOL JEM-2100F TEM</h3>
+          <p class="font-mono text-xs text-vortex-gray mb-6">200kV Field Emission Transmission Electron Microscope with High-Resolution STEM imaging.</p>
+          
+          <div class="space-y-2 font-mono text-xs border-t border-vortex-border pt-4 mb-6">
+            <div class="flex justify-between text-vortex-gray"><span>LOCATION:</span> <span class="text-vortex-white">NANO TECH BLDG, ROOM 104</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>REQUIRED CERT:</span> <span class="text-vortex-cyan font-bold">LEVEL 3 OPERATOR</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>USAGE:</span> <span class="text-vortex-emerald font-bold">FREE</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>NEXT CALIBRATION:</span> <span class="text-vortex-white">2026-10-15 (IN 39 DAYS)</span></div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-4 border-t border-vortex-border">
+          <button onclick="quickBook('JEOL JEM-2100F TEM')" class="flex-1 bg-vortex-cyan text-vortex-black font-mono font-bold text-xs py-2.5 hover:bg-white transition-colors uppercase">BOOK SLOT</button>
+          <button onclick="toggleLockout('JEOL JEM-2100F TEM')" class="border border-vortex-border text-vortex-gray hover:text-vortex-rose hover:border-vortex-rose px-3 py-2.5 font-mono text-xs transition-colors">LOCKOUT</button>
+        </div>
+      </div>
+
+      <!-- Instrument 2 -->
+      <div class="instrument-card glass-card p-6 flex flex-col justify-between hover:border-vortex-cyan transition-all duration-300 group" data-category="SPECTROSCOPY">
+        <div>
+          <div class="flex justify-between items-start mb-4">
+            <span class="font-mono text-xs text-vortex-gray">#SPEC-882</span>
+            <span class="status-badge bg-vortex-cyan/20 text-vortex-cyan border border-vortex-cyan/40 px-2 py-0.5 font-mono text-[10px] font-bold uppercase">IN SESSION</span>
+          </div>
+          <h3 class="text-xl font-bold uppercase text-vortex-white group-hover:text-vortex-cyan transition-colors mb-2">BRUKER AVANCE 600MHz NMR</h3>
+          <p class="font-mono text-xs text-vortex-gray mb-6">High-resolution liquid and solid-state NMR spectrometer equipped with CryoProbe technology.</p>
+          
+          <div class="space-y-2 font-mono text-xs border-t border-vortex-border pt-4 mb-6">
+            <div class="flex justify-between text-vortex-gray"><span>LOCATION:</span> <span class="text-vortex-white">CHEMISTRY HALL, ROOM B-12</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>REQUIRED CERT:</span> <span class="text-vortex-cyan font-bold">LEVEL 2 OPERATOR</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>USAGE:</span> <span class="text-vortex-emerald font-bold">FREE</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>NEXT CALIBRATION:</span> <span class="text-vortex-white">2026-09-28 (IN 22 DAYS)</span></div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-4 border-t border-vortex-border">
+          <button onclick="quickBook('BRUKER AVANCE 600MHz NMR')" class="flex-1 bg-vortex-cyan text-vortex-black font-mono font-bold text-xs py-2.5 hover:bg-white transition-colors uppercase">BOOK NEXT SLOT</button>
+          <button onclick="toggleLockout('BRUKER AVANCE 600MHz NMR')" class="border border-vortex-border text-vortex-gray hover:text-vortex-rose hover:border-vortex-rose px-3 py-2.5 font-mono text-xs transition-colors">LOCKOUT</button>
+        </div>
+      </div>
+
+      <!-- Instrument 3 -->
+      <div class="instrument-card glass-card p-6 flex flex-col justify-between hover:border-vortex-cyan transition-all duration-300 group" data-category="GENOMICS">
+        <div>
+          <div class="flex justify-between items-start mb-4">
+            <span class="font-mono text-xs text-vortex-gray">#GEN-044</span>
+            <span class="status-badge bg-vortex-emerald/20 text-vortex-emerald border border-vortex-emerald/40 px-2 py-0.5 font-mono text-[10px] font-bold uppercase">AVAILABLE</span>
+          </div>
+          <h3 class="text-xl font-bold uppercase text-vortex-white group-hover:text-vortex-cyan transition-colors mb-2">ILLUMINA NOVASEQ 6000</h3>
+          <p class="font-mono text-xs text-vortex-gray mb-6">Ultra-high-throughput DNA/RNA sequencer for whole-genome and single-cell transcriptomics.</p>
+          
+          <div class="space-y-2 font-mono text-xs border-t border-vortex-border pt-4 mb-6">
+            <div class="flex justify-between text-vortex-gray"><span>LOCATION:</span> <span class="text-vortex-white">GENOMICS CENTER, ROOM 302</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>REQUIRED CERT:</span> <span class="text-vortex-cyan font-bold">LEVEL 4 SPECIALIST</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>USAGE:</span> <span class="text-vortex-emerald font-bold">FREE</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>NEXT CALIBRATION:</span> <span class="text-vortex-white">2026-11-04 (IN 59 DAYS)</span></div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-4 border-t border-vortex-border">
+          <button onclick="quickBook('ILLUMINA NOVASEQ 6000')" class="flex-1 bg-vortex-cyan text-vortex-black font-mono font-bold text-xs py-2.5 hover:bg-white transition-colors uppercase">BOOK SLOT</button>
+          <button onclick="toggleLockout('ILLUMINA NOVASEQ 6000')" class="border border-vortex-border text-vortex-gray hover:text-vortex-rose hover:border-vortex-rose px-3 py-2.5 font-mono text-xs transition-colors">LOCKOUT</button>
+        </div>
+      </div>
+
+      <!-- Instrument 4 -->
+      <div class="instrument-card glass-card p-6 flex flex-col justify-between hover:border-vortex-cyan transition-all duration-300 group" data-category="CENTRIFUGATION">
+        <div>
+          <div class="flex justify-between items-start mb-4">
+            <span class="font-mono text-xs text-vortex-gray">#CENT-118</span>
+            <span class="status-badge bg-vortex-amber/20 text-vortex-amber border border-vortex-amber/40 px-2 py-0.5 font-mono text-[10px] font-bold uppercase">CALIBRATING</span>
+          </div>
+          <h3 class="text-xl font-bold uppercase text-vortex-white group-hover:text-vortex-cyan transition-colors mb-2">BECKMAN OPTIMA XPN ULTRACENTRIFUGE</h3>
+          <p class="font-mono text-xs text-vortex-gray mb-6">100,000 RPM prep ultracentrifuge with rotor temperature control and vacuum sensor feedback.</p>
+          
+          <div class="space-y-2 font-mono text-xs border-t border-vortex-border pt-4 mb-6">
+            <div class="flex justify-between text-vortex-gray"><span>LOCATION:</span> <span class="text-vortex-white">BIO LAB, ROOM 210</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>REQUIRED CERT:</span> <span class="text-vortex-cyan font-bold">LEVEL 1 NOVICE</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>USAGE:</span> <span class="text-vortex-emerald font-bold">FREE</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>STATUS DETAILS:</span> <span class="text-vortex-amber font-bold">NIST ROTOR BALANCE CALIB</span></div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-4 border-t border-vortex-border">
+          <button disabled class="flex-1 bg-vortex-card/50 text-vortex-gray border border-vortex-border font-mono font-bold text-xs py-2.5 cursor-not-allowed uppercase">LOCKED (CALIBRATING)</button>
+          <button onclick="toggleLockout('BECKMAN OPTIMA XPN ULTRACENTRIFUGE')" class="border border-vortex-border text-vortex-gray hover:text-vortex-emerald hover:border-vortex-emerald px-3 py-2.5 font-mono text-xs transition-colors">UNLOCK</button>
+        </div>
+      </div>
+
+      <!-- Instrument 5 -->
+      <div class="instrument-card glass-card p-6 flex flex-col justify-between hover:border-vortex-cyan transition-all duration-300 group" data-category="SPECTROSCOPY">
+        <div>
+          <div class="flex justify-between items-start mb-4">
+            <span class="font-mono text-xs text-vortex-gray">#SPEC-501</span>
+            <span class="status-badge bg-vortex-emerald/20 text-vortex-emerald border border-vortex-emerald/40 px-2 py-0.5 font-mono text-[10px] font-bold uppercase">AVAILABLE</span>
+          </div>
+          <h3 class="text-xl font-bold uppercase text-vortex-white group-hover:text-vortex-cyan transition-colors mb-2">AGILENT 6545 Q-TOF LC/MS</h3>
+          <p class="font-mono text-xs text-vortex-gray mb-6">Quadrupole Time-of-Flight Liquid Chromatography Mass Spectrometer for accurate mass profiling.</p>
+          
+          <div class="space-y-2 font-mono text-xs border-t border-vortex-border pt-4 mb-6">
+            <div class="flex justify-between text-vortex-gray"><span>LOCATION:</span> <span class="text-vortex-white">ANALYTICAL CORE, ROOM 118</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>REQUIRED CERT:</span> <span class="text-vortex-cyan font-bold">LEVEL 3 OPERATOR</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>USAGE:</span> <span class="text-vortex-emerald font-bold">FREE</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>NEXT CALIBRATION:</span> <span class="text-vortex-white">2026-10-02 (IN 26 DAYS)</span></div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-4 border-t border-vortex-border">
+          <button onclick="quickBook('AGILENT 6545 Q-TOF LC/MS')" class="flex-1 bg-vortex-cyan text-vortex-black font-mono font-bold text-xs py-2.5 hover:bg-white transition-colors uppercase">BOOK SLOT</button>
+          <button onclick="toggleLockout('AGILENT 6545 Q-TOF LC/MS')" class="border border-vortex-border text-vortex-gray hover:text-vortex-rose hover:border-vortex-rose px-3 py-2.5 font-mono text-xs transition-colors">LOCKOUT</button>
+        </div>
+      </div>
+
+      <!-- Instrument 6 -->
+      <div class="instrument-card glass-card p-6 flex flex-col justify-between hover:border-vortex-cyan transition-all duration-300 group" data-category="MICROSCOPY">
+        <div>
+          <div class="flex justify-between items-start mb-4">
+            <span class="font-mono text-xs text-vortex-gray">#MIC-770</span>
+            <span class="status-badge bg-vortex-rose/20 text-vortex-rose border border-vortex-rose/40 px-2 py-0.5 font-mono text-[10px] font-bold uppercase">OUT OF ORDER</span>
+          </div>
+          <h3 class="text-xl font-bold uppercase text-vortex-white group-hover:text-vortex-cyan transition-colors mb-2">ZEISS LSM 980 CONFOCAL MICROSCOPE</h3>
+          <p class="font-mono text-xs text-vortex-gray mb-6">Laser scanning confocal microscope with Airyscan 2 multiplex imaging for live cell tracking.</p>
+          
+          <div class="space-y-2 font-mono text-xs border-t border-vortex-border pt-4 mb-6">
+            <div class="flex justify-between text-vortex-gray"><span>LOCATION:</span> <span class="text-vortex-white">CELL BIO BLDG, ROOM 405</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>REQUIRED CERT:</span> <span class="text-vortex-cyan font-bold">LEVEL 2 OPERATOR</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>USAGE:</span> <span class="text-vortex-emerald font-bold">FREE</span></div>
+            <div class="flex justify-between text-vortex-gray"><span>STATUS DETAILS:</span> <span class="text-vortex-rose font-bold">REPLACING 488nm LASER DIODE</span></div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-4 border-t border-vortex-border">
+          <button disabled class="flex-1 bg-vortex-card/50 text-vortex-gray border border-vortex-border font-mono font-bold text-xs py-2.5 cursor-not-allowed uppercase">UNAVAILABLE</button>
+          <button onclick="toggleLockout('ZEISS LSM 980 CONFOCAL MICROSCOPE')" class="border border-vortex-border text-vortex-gray hover:text-vortex-emerald hover:border-vortex-emerald px-3 py-2.5 font-mono text-xs transition-colors">RESTORE</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RESERVATION & BOOKINGS LOG SECTION -->
+  <section id="bookings" class="w-full px-6 sm:px-10 py-16 border-b border-vortex-border bg-vortex-card/20">
+    <div class="flex justify-between items-end mb-8 border-b border-vortex-border pb-6">
+      <div>
+        <h2 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-vortex-white">ACTIVE & UPCOMING BOOKINGS</h2>
+      </div>
+      <button id="btn-open-booking-2" class="bg-vortex-cyan text-vortex-black px-4 py-2 font-mono text-xs font-bold hover:bg-white transition-colors cursor-pointer">
+        + BOOK INSTRUMENT
+      </button>
+    </div>
+
+    <!-- Active Reservations Table -->
+    <div class="overflow-x-auto border border-vortex-border glass-card">
+      <table class="w-full min-w-[720px] text-left font-mono text-xs">
+        <thead class="bg-vortex-black/80 border-b border-vortex-border text-vortex-gray uppercase">
+          <tr>
+            <th class="py-4 px-6">BOOKING ID</th>
+            <th class="py-4 px-6">INSTRUMENT</th>
+            <th class="py-4 px-6">RESEARCHER</th>
+            <th class="py-4 px-6">SCHEDULED TIME</th>
+            <th class="py-4 px-6">PURPOSE</th>
+            <th class="py-4 px-6">STATUS</th>
+            <th class="py-4 px-6 text-right">ACTION</th>
+          </tr>
+        </thead>
+        <tbody id="bookings-table-body" class="divide-y divide-vortex-border">
+          
+          <tr class="hover:bg-zinc-900/50 transition-colors">
+            <td class="py-4 px-6 font-bold text-vortex-cyan">#RES-9401</td>
+            <td class="py-4 px-6 text-vortex-white font-bold">BRUKER AVANCE 600MHz NMR</td>
+            <td class="py-4 px-6">Samantha Lee (PhD)</td>
+            <td class="py-4 px-6">Today, 14:00 - 16:00</td>
+            <td class="py-4 px-6">Protein structure analysis</td>
+            <td class="py-4 px-6"><span class="bg-vortex-cyan/20 text-vortex-cyan border border-vortex-cyan/40 px-2 py-0.5 text-[10px] font-bold">ACTIVE NOW</span></td>
+            <td class="py-4 px-6 text-right">
+              <button onclick="showCheckInPass('#RES-9401', 'BRUKER AVANCE 600MHz NMR', 'Samantha Lee')" class="border border-vortex-cyan text-vortex-cyan px-3 py-1 text-[11px] hover:bg-vortex-cyan hover:text-vortex-black transition-colors">QR PASS</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-zinc-900/50 transition-colors">
+            <td class="py-4 px-6 font-bold text-vortex-cyan">#RES-9402</td>
+            <td class="py-4 px-6 text-vortex-white font-bold">JEOL JEM-2100F TEM</td>
+            <td class="py-4 px-6">Dr. Aris Thorne</td>
+            <td class="py-4 px-6">Tomorrow, 10:00 - 13:00</td>
+            <td class="py-4 px-6">Nanoparticle lattice imaging</td>
+            <td class="py-4 px-6"><span class="bg-vortex-emerald/20 text-vortex-emerald border border-vortex-emerald/40 px-2 py-0.5 text-[10px] font-bold">CONFIRMED</span></td>
+            <td class="py-4 px-6 text-right">
+              <button onclick="showCheckInPass('#RES-9402', 'JEOL JEM-2100F TEM', 'Dr. Aris Thorne')" class="border border-vortex-border text-vortex-gray px-3 py-1 text-[11px] hover:border-vortex-white hover:text-vortex-white transition-colors">QR PASS</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-zinc-900/50 transition-colors">
+            <td class="py-4 px-6 font-bold text-vortex-cyan">#RES-9403</td>
+            <td class="py-4 px-6 text-vortex-white font-bold">ILLUMINA NOVASEQ 6000</td>
+            <td class="py-4 px-6">Elena Rostova (Postdoc)</td>
+            <td class="py-4 px-6">2026-09-08, 09:00 - 17:00</td>
+            <td class="py-4 px-6">Single-cell RNA sequencing run</td>
+            <td class="py-4 px-6"><span class="bg-vortex-emerald/20 text-vortex-emerald border border-vortex-emerald/40 px-2 py-0.5 text-[10px] font-bold">CONFIRMED</span></td>
+            <td class="py-4 px-6 text-right">
+              <button onclick="showCheckInPass('#RES-9403', 'ILLUMINA NOVASEQ 6000', 'Elena Rostova')" class="border border-vortex-border text-vortex-gray px-3 py-1 text-[11px] hover:border-vortex-white hover:text-vortex-white transition-colors">QR PASS</button>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>  <!-- CALIBRATION & MAINTENANCE VAULT -->
+  <section id="calibration" class="w-full px-6 sm:px-10 py-16 border-b border-vortex-border">
+    <div class="flex justify-between items-end mb-8 border-b border-vortex-border pb-6">
+      <div>
+        <h2 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-white">PREVENTIVE MAINTENANCE VAULT</h2>
+      </div>
+      <button onclick="logCalibrationModal()" class="border border-vortex-cyan text-vortex-cyan px-4 py-2 font-mono text-xs font-bold hover:bg-vortex-cyan hover:text-vortex-black transition-colors cursor-pointer">
+        + LOG CALIBRATION
+      </button>
+    </div>
+
+    <!-- Calibration Records List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <div class="p-6 glass-card font-mono text-xs">
+        <div class="flex justify-between items-center mb-4 border-b border-vortex-border pb-3">
+          <span class="text-vortex-cyan font-bold text-sm">JEOL JEM-2100F TEM</span>
+          <span class="text-vortex-emerald bg-vortex-emerald/20 border border-vortex-emerald/40 px-2 py-0.5 text-[10px] font-bold">NIST PASSED</span>
+        </div>
+        <div class="space-y-2 text-vortex-gray mb-4">
+          <div class="flex justify-between"><span class="text-slate-400">LAST INSPECTION:</span> <span class="text-white font-medium">2026-08-15</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">PERFORMED BY:</span> <span class="text-white font-medium">Marcus Vance (Sr. Specialist)</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">DRIFT TOLERANCE:</span> <span class="text-vortex-emerald font-bold">±0.02 nm (WITHIN LIMITS)</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">NEXT DUE:</span> <span class="text-white font-medium">2026-10-15</span></div>
+        </div>
+        <button onclick="downloadCertificate('JEOL JEM-2100F TEM')" class="w-full py-2.5 border border-vortex-border text-slate-200 hover:text-white hover:border-vortex-white hover:bg-white/5 transition-colors text-center block font-semibold">
+          DOWNLOAD CERTIFICATE (PDF) ↓
+        </button>
+      </div>
+
+      <div class="p-6 glass-card font-mono text-xs">
+        <div class="flex justify-between items-center mb-4 border-b border-vortex-border pb-3">
+          <span class="text-vortex-cyan font-bold text-sm">BECKMAN OPTIMA XPN ULTRACENTRIFUGE</span>
+          <span class="text-vortex-amber bg-vortex-amber/20 border border-vortex-amber/40 px-2 py-0.5 text-[10px] font-bold">IN PROGRESS</span>
+        </div>
+        <div class="space-y-2 text-vortex-gray mb-4">
+          <div class="flex justify-between"><span class="text-slate-400">LAST INSPECTION:</span> <span class="text-white font-medium">2026-09-06 (TODAY)</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">PERFORMED BY:</span> <span class="text-white font-medium">Beckman Field Service Eng.</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">STATUS:</span> <span class="text-vortex-amber font-bold">ROTOR BALANCE RE-CALIBRATION</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">EST. COMPLETION:</span> <span class="text-white font-medium">Today 17:00</span></div>
+        </div>
+        <button disabled class="w-full py-2.5 border border-vortex-border/50 text-slate-500 cursor-not-allowed text-center block opacity-60">
+          CERTIFICATE PENDING SERVICE
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CERTIFICATIONS & QUALIFICATIONS -->
+  <section id="certs" class="w-full px-6 sm:px-10 py-16 border-b border-vortex-border bg-vortex-card/20">
+    <div class="flex justify-between items-end mb-8 border-b border-vortex-border pb-6">
+      <div>
+        <h2 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-white">OPERATOR CERTIFICATION MATRIX</h2>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto border border-vortex-border glass-card font-mono text-xs">
+      <table class="w-full min-w-[720px] text-left">
+        <thead class="bg-vortex-black/80 border-b border-vortex-border text-slate-300 uppercase">
+          <tr>
+            <th class="py-4 px-6">RESEARCHER NAME</th>
+            <th class="py-4 px-6">DEPARTMENT</th>
+            <th class="py-4 px-6">QUALIFIED INSTRUMENTS</th>
+            <th class="py-4 px-6">CERT LEVEL</th>
+            <th class="py-4 px-6">EXPIRATION</th>
+            <th class="py-4 px-6 text-right">STATUS</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-vortex-border/60">
+          <tr class="hover:bg-white/5 transition-colors">
+            <td class="py-4 px-6 font-bold text-white">Samantha Lee (PhD Candidate)</td>
+            <td class="py-4 px-6 text-slate-300">Chemistry</td>
+            <td class="py-4 px-6 text-white font-medium">Bruker NMR 600MHz, Agilent LC/MS</td>
+            <td class="py-4 px-6"><span class="text-vortex-cyan font-bold">LEVEL 3 OPERATOR</span></td>
+            <td class="py-4 px-6 text-slate-300">2027-01-15</td>
+            <td class="py-4 px-6 text-right"><span class="text-vortex-emerald font-bold">ACTIVE</span></td>
+          </tr>
+          <tr class="hover:bg-white/5 transition-colors">
+            <td class="py-4 px-6 font-bold text-white">Dr. Aris Thorne</td>
+            <td class="py-4 px-6 text-slate-300">Materials Science</td>
+            <td class="py-4 px-6 text-white font-medium">JEOL TEM, Zeiss LSM 980, Bruker NMR</td>
+            <td class="py-4 px-6"><span class="text-vortex-violet font-bold">LEVEL 4 MASTER TRAINER</span></td>
+            <td class="py-4 px-6 text-slate-300">2028-06-30</td>
+            <td class="py-4 px-6 text-right"><span class="text-vortex-emerald font-bold">ACTIVE</span></td>
+          </tr>
+          <tr class="hover:bg-white/5 transition-colors">
+            <td class="py-4 px-6 font-bold text-white">Elena Rostova (Postdoc)</td>
+            <td class="py-4 px-6 text-slate-300">Genomics Core</td>
+            <td class="py-4 px-6 text-white font-medium">Illumina NovaSeq 6000</td>
+            <td class="py-4 px-6"><span class="text-vortex-cyan font-bold">LEVEL 4 SPECIALIST</span></td>
+            <td class="py-4 px-6 text-slate-300">2027-03-20</td>
+            <td class="py-4 px-6 text-right"><span class="text-vortex-emerald font-bold">ACTIVE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- RESEARCH GRANTS & CHARGEBACKS -->
+  <section id="grants" class="w-full px-6 sm:px-10 py-20 border-b border-vortex-border bg-vortex-black/90">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex justify-between items-end mb-8 border-b border-vortex-border pb-6">
+        <div>
+          <span class="text-vortex-cyan font-mono text-xs uppercase tracking-widest block mb-2 font-bold">RESEARCH FUNDING &amp; ALLOCATIONS</span>
+          <h2 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-white">RESEARCH GRANTS & CHARGEBACKS</h2>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs">
+        
+        <div class="p-6 glass-card border border-vortex-border hover:border-vortex-cyan transition-colors">
+          <div class="flex justify-between text-slate-200 mb-2 font-bold text-xs">
+            <span>NSF-GRANT-2026-X8</span>
+            <span class="text-vortex-cyan font-bold">PI: DR. THORNE</span>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-4">Quantum Materials Research</h3>
+          <div class="space-y-3 mb-5 text-xs">
+            <div class="flex justify-between"><span class="text-slate-200 font-semibold">ALLOCATED:</span> <span class="text-white font-bold">$50,000.00</span></div>
+            <div class="flex justify-between"><span class="text-slate-200 font-semibold">EXPENDED:</span> <span class="text-cyan-300 font-bold">$18,450.00</span></div>
+            <div class="flex justify-between"><span class="text-slate-200 font-semibold">REMAINING:</span> <span class="text-emerald-400 font-bold">$31,550.00</span></div>
+          </div>
+          <div class="w-full bg-vortex-black h-2.5 rounded-full overflow-hidden border border-vortex-border">
+            <div class="bg-vortex-cyan h-full rounded-full" style="width: 36.9%"></div>
+          </div>
+        </div>
+
+        <div class="p-6 glass-card border border-vortex-border hover:border-vortex-cyan transition-colors">
+          <div class="flex justify-between text-slate-200 mb-2 font-bold text-xs">
+            <span>NIH-GENOMICS-401</span>
+            <span class="text-vortex-cyan font-bold">PI: DR. ROSTOVA</span>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-4">Single-Cell Transcriptomics</h3>
+          <div class="space-y-3 mb-5 text-xs">
+            <div class="flex justify-between"><span class="text-slate-200 font-semibold">ALLOCATED:</span> <span class="text-white font-bold">$120,000.00</span></div>
+            <div class="flex justify-between"><span class="text-slate-200 font-semibold">EXPENDED:</span> <span class="text-cyan-300 font-bold">$74,200.00</span></div>
+            <div class="flex justify-between"><span class="text-slate-200 font-semibold">REMAINING:</span> <span class="text-emerald-400 font-bold">$45,800.00</span></div>
+          </div>
+          <div class="w-full bg-vortex-black h-2.5 rounded-full overflow-hidden border border-vortex-border">
+            <div class="bg-emerald-400 h-full rounded-full" style="width: 61.8%"></div>
+          </div>
+        </div>
+
+        <div class="p-6 glass-card border border-vortex-border hover:border-vortex-cyan transition-colors">
+          <div class="flex justify-between text-slate-200 mb-2 font-bold text-xs">
+            <span>DARPA-NANO-9021</span>
+            <span class="text-vortex-cyan font-bold">PI: DR. THORNE</span>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-4">Synthetic Nano Structures</h3>
+          <div class="space-y-3 mb-5 text-xs">
+            <div class="flex justify-between"><span class="text-slate-200 font-semibold">ALLOCATED:</span> <span class="text-white font-bold">$85,000.00</span></div>
+            <div class="flex justify-between"><span class="text-slate-200 font-semibold">EXPENDED:</span> <span class="text-cyan-300 font-bold">$42,100.00</span></div>
+            <div class="flex justify-between"><span class="text-slate-200 font-semibold">REMAINING:</span> <span class="text-emerald-400 font-bold">$42,900.00</span></div>
+          </div>
+          <div class="w-full bg-vortex-black h-2.5 rounded-full overflow-hidden border border-vortex-border">
+            <div class="bg-violet-400 h-full rounded-full" style="width: 49.5%"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CALL TO ACTION BANNER (LAST SLIDE) -->
+  <section id="get-started" class="w-full px-6 sm:px-10 py-24 border-b border-vortex-border bg-gradient-to-b from-[#0A0D12] via-[#0E1524] to-[#0A0D12] relative overflow-hidden">
+    <div class="max-w-5xl mx-auto text-center relative z-10 p-8 sm:p-14 glass-card border-2 border-vortex-cyan/30 shadow-2xl">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full border border-vortex-cyan/40 bg-vortex-cyan/15 font-mono text-xs text-vortex-cyan font-bold tracking-wider">
+        <span class="w-2.5 h-2.5 rounded-full bg-vortex-cyan animate-pulse"></span>
+        <span>PRODUCTION-READY LAB MANAGEMENT</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-white mb-6 drop-shadow-lg">
+        READY TO ELEVATE YOUR LABORATORY OPERATIONS?
+      </h2>
+      <p class="font-sans text-base sm:text-xl text-slate-100 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+        Join leading academic and research facilities managing high-value instrumentation with LabPulse. Zero reservation collisions, complete calibration auditability.
+      </p>
+      <div class="flex flex-wrap justify-center items-center gap-5 font-mono text-xs">
+        <a href="signup.html" class="bg-vortex-cyan text-vortex-black px-8 py-4 font-bold uppercase hover:bg-white transition-all duration-200 cursor-pointer shadow-lg shadow-vortex-cyan/30 text-sm">
+          CREATE ACCOUNT →
+        </a>
+        <a href="login.html" class="bg-white/10 border-2 border-white/60 text-white hover:bg-white hover:text-vortex-black px-8 py-4 font-bold uppercase transition-all duration-200 text-sm">
+          SIGN IN TO PORTAL
+        </a>
+        <a href="design-system.html" class="border-2 border-vortex-cyan/60 text-vortex-cyan hover:bg-vortex-cyan hover:text-vortex-black px-6 py-4 font-bold uppercase transition-all duration-200 text-sm">
+          VIEW DESIGN SYSTEM
+        </a>
+      </div>
+    </div>
+  </section>
+  </div> <!-- Close line 130 relative z-10 -->
+
+  <!-- NEW RESERVATION MODAL FORM -->
+  <div id="booking-modal" class="fixed inset-0 bg-vortex-black/90 backdrop-blur-md text-vortex-white z-[70] p-6 sm:p-16 overflow-y-auto opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col justify-between" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
+    <div class="flex justify-between items-center border-b border-vortex-border pb-6">
+      <span class="font-mono text-xs text-vortex-cyan">INSTRUMENT RESERVATION</span>
+      <button id="close-booking-modal" class="font-mono text-xs hover:text-vortex-cyan uppercase border border-vortex-border px-4 py-2 hover:border-vortex-cyan transition-colors cursor-pointer">
+        close
+      </button>
+    </div>
+
+    <div class="max-w-3xl mx-auto w-full my-8">
+      <h2 id="booking-modal-title" class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight mb-8 text-white">BOOK EQUIPMENT SLOT</h2>
+
+      <form id="booking-form" class="space-y-6 font-mono text-xs">
+        <div>
+          <label class="block text-slate-300 uppercase mb-2">01 / SELECT INSTRUMENT *</label>
+          <select id="book-instrument-select" required class="w-full glass-input py-3 px-4 text-white focus:outline-none focus:border-vortex-cyan transition-colors">
+            <option value="JEOL JEM-2100F TEM">JEOL JEM-2100F TEM (Cert Level 3 Required)</option>
+            <option value="BRUKER AVANCE 600MHz NMR">BRUKER AVANCE 600MHz NMR (Cert Level 2 Required)</option>
+            <option value="ILLUMINA NOVASEQ 6000">ILLUMINA NOVASEQ 6000 (Cert Level 4 Required)</option>
+            <option value="AGILENT 6545 Q-TOF LC/MS">AGILENT 6545 Q-TOF LC/MS (Cert Level 3 Required)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-slate-300 uppercase mb-2">02 / RESEARCHER NAME *</label>
+            <input type="text" id="book-user-name" required class="w-full glass-input py-3 px-4 text-white focus:outline-none focus:border-vortex-cyan transition-colors">
+          </div>
+          <div>
+            <label class="block text-slate-300 uppercase mb-2">03 / PURPOSE *</label>
+            <input type="text" id="book-purpose" required maxlength="500" class="w-full glass-input py-3 px-4 text-white focus:outline-none focus:border-vortex-cyan transition-colors">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div>
+            <label class="block text-slate-300 uppercase mb-2">04 / RESERVATION DATE *</label>
+            <input type="date" id="book-date" required class="w-full glass-input py-3 px-4 text-white focus:outline-none focus:border-vortex-cyan transition-colors">
+          </div>
+          <div>
+            <label class="block text-slate-300 uppercase mb-2">05 / START TIME *</label>
+            <input type="time" id="book-start-time" value="14:00" required class="w-full glass-input py-3 px-4 text-white focus:outline-none focus:border-vortex-cyan transition-colors">
+          </div>
+          <div>
+            <label class="block text-slate-300 uppercase mb-2">06 / DURATION (HOURS) *</label>
+            <input type="number" id="book-hours" min="1" max="12" value="2" required class="w-full glass-input py-3 px-4 text-white focus:outline-none focus:border-vortex-cyan transition-colors">
+          </div>
+        </div>
+
+        <div class="p-4 border border-vortex-emerald/40 bg-vortex-emerald/10 flex justify-between items-center text-xs">
+          <span class="text-slate-300 font-bold">USAGE CHARGE:</span>
+          <span class="text-xl font-bold text-vortex-emerald">FREE</span>
+        </div>
+
+        <button type="submit" class="w-full py-4 bg-vortex-cyan text-vortex-black font-bold text-sm uppercase hover:bg-white transition-colors cursor-pointer">
+          CONFIRM & GENERATE QR PASS →
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- QR CHECK-IN PASS MODAL -->
+  <div id="qr-modal" class="fixed inset-0 bg-vortex-black/90 backdrop-blur-md text-vortex-white z-[80] p-4 sm:p-8 overflow-y-auto opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Instrument access pass">
+    <div class="max-w-md w-full glass-card p-6 sm:p-8 text-center font-mono border border-vortex-cyan/50 shadow-[0_0_35px_rgba(0,245,212,0.18)] relative">
+      <div class="flex justify-between items-center border-b border-vortex-border pb-3 mb-5 text-[11px]">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-vortex-cyan animate-pulse"></span>
+          <span class="text-vortex-cyan uppercase font-bold tracking-wider">HARDWARE INTERLOCK PASS</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="px-2 py-0.5 text-[10px] rounded border border-vortex-emerald/40 bg-vortex-emerald/10 text-vortex-emerald font-bold">ACTIVE / VALID</span>
+          <button id="close-qr-modal" class="text-vortex-gray hover:text-vortex-white font-bold px-1.5 py-0.5 text-xs transition-colors" aria-label="Close pass modal">[X]</button>
+        </div>
+      </div>
+
+      <div class="text-center mb-5">
+        <span class="text-[10px] text-vortex-gray uppercase block tracking-widest font-bold">RESERVATION ID</span>
+        <h3 id="qr-res-id" class="text-2xl font-display font-black text-vortex-cyan tracking-tight mt-0.5">#RES-9401</h3>
+        <p id="qr-inst-name" class="text-xs font-bold text-white mt-1 uppercase tracking-wide">BRUKER AVANCE 600MHz NMR</p>
+        <p class="text-[11px] text-vortex-gray mt-0.5">SPECTROSCOPY WING · ROOM 304B</p>
+      </div>
+
+      <!-- Generated Real Scannable QR Code Display with Cyber Brackets -->
+      <div class="relative mx-auto w-52 h-52 bg-white p-2.5 mb-5 rounded-sm border-2 border-vortex-cyan flex flex-col items-center justify-center shadow-[0_0_20px_rgba(0,245,212,0.25)] overflow-hidden">
+        <span class="absolute -top-1.5 -left-1.5 w-3 h-3 border-t-2 border-l-2 border-vortex-cyan z-10 pointer-events-none"></span>
+        <span class="absolute -top-1.5 -right-1.5 w-3 h-3 border-t-2 border-r-2 border-vortex-cyan z-10 pointer-events-none"></span>
+        <span class="absolute -bottom-1.5 -left-1.5 w-3 h-3 border-b-2 border-l-2 border-vortex-cyan z-10 pointer-events-none"></span>
+        <span class="absolute -bottom-1.5 -right-1.5 w-3 h-3 border-b-2 border-r-2 border-vortex-cyan z-10 pointer-events-none"></span>
+        <div id="qr-code-svg" class="w-full h-full flex items-center justify-center p-1" aria-label="Scannable Hardware Access Pass QR Code"></div>
+      </div>
+
+      <div class="space-y-1.5 text-center text-xs mb-5 border-t border-b border-vortex-border py-3 bg-vortex-black/40">
+        <p id="qr-user-name" class="text-xs text-vortex-white font-bold">HOLDER: Samantha Lee (PhD)</p>
+        <p class="text-[10px] text-vortex-cyan font-code">SECURITY TOKEN: HMAC-SHA256 VERIFIED</p>
+      </div>
+
+      <button onclick="simulateCheckIn()" class="w-full py-3.5 bg-vortex-cyan text-vortex-black font-bold text-xs uppercase hover:bg-white transition-colors cursor-pointer min-h-[44px]">
+        SIMULATE TERMINAL CHECK-IN →
+      </button>
+    </div>
+  </div>
+  </main>
+
+  <!-- NOTICE DIALOG (custom confirmation system; replaces window.alert) -->
+  <div id="notice-modal" class="fixed inset-0 z-[90] p-6 hidden flex-col items-center justify-center bg-vortex-black/90 backdrop-blur-md text-vortex-white overflow-y-auto" role="alertdialog" aria-modal="true" aria-labelledby="notice-title" aria-describedby="notice-message">
+    <div class="max-w-md w-full glass-card p-8 font-mono border border-vortex-cyan/50">
+      <h3 id="notice-title" class="text-sm font-bold text-vortex-cyan mb-4 uppercase">Notice</h3>
+      <p id="notice-message" class="text-xs text-slate-200 mb-6 whitespace-pre-line"></p>
+      <button id="close-notice-modal" class="w-full py-3 bg-vortex-cyan text-vortex-black font-bold text-xs uppercase hover:bg-white transition-colors cursor-pointer">OK</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 w-full px-6 sm:px-10 py-16 bg-[#0A0D12] text-[#E2E8F0] font-mono text-xs border-t border-vortex-border">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 mb-12 pb-12 border-b border-vortex-border">
+      <div class="md:col-span-1">
+        <div class="flex items-center space-x-2 text-white font-display font-black text-base mb-3">
+          <span class="w-3 h-3 bg-vortex-cyan inline-block shadow-[0_0_10px_#00F5D4]"></span>
+          <span class="text-white font-bold tracking-tight">LABPULSE</span>
+        </div>
+        <p class="text-[#CBD5E1] text-xs leading-relaxed mb-4">
+          Intelligent laboratory resource management, conflict-free scheduling, and cryptographic hardware interlocks.
+        </p>
+        <span class="text-vortex-cyan text-xs border border-vortex-cyan/40 bg-vortex-cyan/10 px-2.5 py-1 inline-block font-bold">
+          ENTERPRISE LIMS v2.4
+        </span>
+      </div>
+
+      <div>
+        <span class="text-white font-bold block mb-3 uppercase tracking-wider text-xs">PLATFORM</span>
+        <ul class="space-y-2 text-xs">
+          <li><a href="#catalog" class="text-[#CBD5E1] hover:text-vortex-cyan transition-colors font-medium">Instrument Catalog</a></li>
+          <li><a href="#features" class="text-[#CBD5E1] hover:text-vortex-cyan transition-colors font-medium">Core Capabilities</a></li>
+          <li><a href="#workflow" class="text-[#CBD5E1] hover:text-vortex-cyan transition-colors font-medium">Operational Flow</a></li>
+          <li><a href="#roles" class="text-[#CBD5E1] hover:text-vortex-cyan transition-colors font-medium">Role Portals</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <span class="text-white font-bold block mb-3 uppercase tracking-wider text-xs">PORTALS</span>
+        <ul class="space-y-2 text-xs">
+          <li><a href="login.html" class="text-[#CBD5E1] hover:text-vortex-cyan transition-colors font-medium">Sign In Portal</a></li>
+          <li><a href="signup.html" class="text-[#CBD5E1] hover:text-vortex-cyan transition-colors font-medium">Register Account</a></li>
+          <li><a href="design-system.html" class="text-[#CBD5E1] hover:text-vortex-cyan transition-colors font-medium">UI Design System</a></li>
+          <li><a href="404.html" class="text-[#CBD5E1] hover:text-vortex-cyan transition-colors font-medium">System 404 Handler</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <span class="text-white font-bold block mb-3 uppercase tracking-wider text-xs">COMPLIANCE &amp; TRUST</span>
+        <p class="text-[#CBD5E1] text-xs leading-relaxed mb-3">
+          ISO/IEC 17025 &amp; 21 CFR Part 11 Audit Ready. SHA-256 JWT cryptographic session security.
+        </p>
+        <div class="text-xs text-vortex-emerald flex items-center gap-2 font-bold">
+          <span class="w-2 h-2 rounded-full bg-vortex-emerald"></span>
+          <span class="text-vortex-emerald">SYSTEMS OPERATIONAL</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-semibold">
+      <div>
+        <span class="text-white font-bold">LABPULSE PLATFORM</span>
+        <span class="text-[#8A99AD] mx-2">|</span>
+        <span class="text-[#E2E8F0]">RESEARCH &amp; EDUCATIONAL INSTRUMENTATION</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="text-[#CBD5E1]">UTC CLOCK: <span id="live-clock" class="text-vortex-cyan font-bold">00:00:00</span></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="motion.js"></script>
+  <script src="qrcode.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

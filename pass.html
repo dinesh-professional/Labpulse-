@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabPulse — Cryptographic Hardware Access Pass</title>
+  <meta name="description" content="LabPulse single-use cryptographic access pass for laboratory hardware interlocks and terminal check-in.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            vortex: {
+              black: '#0A0D12',
+              card: '#121722',
+              border: '#222A3A',
+              white: '#F8FAFC',
+              gray: '#8A99AD',
+              cyan: '#00F5D4',
+              emerald: '#10B981',
+              amber: '#F59E0B',
+              rose: '#F43F5E',
+              violet: '#A855F7',
+            }
+          },
+          fontFamily: {
+            display: ['"Inter Tight"', 'Inter', 'sans-serif'],
+            sans: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+            code: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+  <style>
+    @keyframes scanline {
+      0% { top: 0%; opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { top: 96%; opacity: 0.8; }
+    }
+    .laser-scan {
+      animation: scanline 2.2s ease-in-out infinite alternate;
+    }
+  </style>
+</head>
+<body class="bg-vortex-black text-vortex-white font-sans antialiased min-h-screen overflow-x-hidden relative">
+
+  <!-- Animated Background Orbs -->
+  <div class="vortex-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+  </div>
+
+  <a href="#main" class="skip-link">SKIP TO PASS</a>
+
+  <!-- Header Navigation -->
+  <header class="glass-nav relative z-10 w-full px-6 sm:px-10 py-4 border-b border-vortex-border flex justify-between items-center gap-4">
+    <a href="index.html" class="text-sm font-display font-black tracking-tighter text-vortex-white flex items-center space-x-2">
+      <span class="w-3 h-3 bg-vortex-cyan inline-block shadow-[0_0_10px_#00F5D4]"></span>
+      <span>LABPULSE · ACCESS PASS</span>
+    </a>
+    <div class="flex items-center gap-4 font-mono text-xs">
+      <a href="student.html" class="text-vortex-gray hover:text-vortex-white transition-colors hidden md:inline">STUDENT PORTAL</a>
+      <a href="faculty.html" class="text-vortex-gray hover:text-vortex-white transition-colors hidden md:inline">FACULTY WORKSPACE</a>
+      <a href="admin.html" class="text-vortex-gray hover:text-vortex-white transition-colors hidden md:inline">ADMIN CONSOLE</a>
+      <span id="user-chip" class="text-vortex-gray hidden sm:inline"></span>
+      <button id="btn-logout" class="glass-input text-vortex-gray hover:text-vortex-white hover:border-vortex-white px-3 py-2 font-mono text-xs transition-colors min-h-[44px]">LOGOUT</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main" class="relative z-10 px-4 sm:px-10 py-10 max-w-4xl mx-auto w-full">
+
+    <div class="text-center sm:text-left mb-8">
+      <div class="inline-flex items-center gap-2 mb-2">
+        <span class="w-2 h-2 rounded-full bg-vortex-cyan animate-pulse"></span>
+        <span class="text-xs font-mono uppercase tracking-widest text-vortex-cyan font-bold">CRYPTO PASS ENGINE // MODULE 09</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight mb-2">Hardware Check-In Pass</h1>
+      <p class="font-mono text-xs text-vortex-gray">SINGLE-USE CRYPTOGRAPHIC ACCESS TOKEN & HARDWARE INTERLOCK VERIFICATION</p>
+    </div>
+
+    <!-- Pass Telemetry Row -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10 font-mono text-xs" aria-label="Pass State Overview">
+      <div class="p-4 glass-stat border border-vortex-border group hover:border-vortex-emerald/40 transition-colors">
+        <span class="text-vortex-gray text-[10px] block uppercase font-bold tracking-wider">Pass State</span>
+        <span id="stat-pass-status" class="text-xl font-bold font-display text-vortex-emerald block mt-1">ACTIVE / VALID</span>
+      </div>
+      <div class="p-4 glass-stat border border-vortex-border group hover:border-vortex-cyan/40 transition-colors">
+        <span class="text-vortex-gray text-[10px] block uppercase font-bold tracking-wider">Valid Window</span>
+        <span id="stat-pass-window" class="text-xl font-bold font-display text-vortex-cyan block mt-1">14:00 – 17:00</span>
+      </div>
+      <div class="p-4 glass-stat border border-vortex-border group hover:border-vortex-violet/40 transition-colors">
+        <span class="text-vortex-gray text-[10px] block uppercase font-bold tracking-wider">Interlock Relay</span>
+        <span id="stat-pass-relay" class="text-xl font-bold font-display text-vortex-violet block mt-1">STANDBY</span>
+      </div>
+      <div class="p-4 glass-stat border border-vortex-border group hover:border-vortex-amber/40 transition-colors">
+        <span class="text-vortex-gray text-[10px] block uppercase font-bold tracking-wider">Expiration</span>
+        <span id="stat-pass-expiry" class="text-xl font-bold font-display text-vortex-amber block mt-1">01:42:19</span>
+      </div>
+    </section>
+
+    <!-- Apparatus Preset Switcher -->
+    <div class="mb-8 p-4 border border-vortex-border glass-card font-mono text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <span class="text-vortex-white font-bold block uppercase text-xs">Switch Active Laboratory Pass</span>
+        <span class="text-vortex-gray text-[11px]">Select a scheduled apparatus reservation to inspect its cryptographic pass:</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="sel-pass-preset" class="glass-input py-2 px-3 text-xs focus:outline-none focus:border-vortex-cyan min-h-[44px]">
+          <option value="nmr">#RES-9401 — Bruker Avance 600MHz NMR</option>
+          <option value="tem">#RES-8820 — JEOL Cryo-TEM 300kV</option>
+          <option value="xrd">#RES-7104 — Rigaku SmartLab XRD</option>
+          <option value="confocal">#RES-6502 — Leica SP8 Confocal STED</option>
+        </select>
+        <button id="btn-reload-pass" class="glass-input px-3 py-2 text-vortex-cyan hover:border-vortex-cyan min-h-[44px] font-bold">LOAD</button>
+      </div>
+    </div>
+
+    <!-- Main Pass Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+
+      <!-- THE ACCESS PASS CARD (Matching High-Fidelity Mockup) -->
+      <section class="lg:col-span-7 flex justify-center" aria-label="Physical Access Card">
+        <div id="pass-card" class="max-w-md w-full glass-card p-6 sm:p-8 font-mono border-2 border-vortex-cyan/50 shadow-[0_0_40px_rgba(0,245,212,0.18)] relative transition-all duration-300">
+          
+          <!-- Pass Header -->
+          <div class="flex justify-between items-center border-b border-vortex-border pb-3 mb-5 text-[11px]">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-vortex-cyan animate-pulse"></span>
+              <span class="text-vortex-cyan uppercase font-bold tracking-wider">HARDWARE INTERLOCK PASS</span>
+            </div>
+            <span id="pass-badge" class="px-2 py-0.5 text-[10px] rounded border border-vortex-emerald/40 bg-vortex-emerald/10 text-vortex-emerald font-bold">
+              [ACTIVE / VALID]
+            </span>
+          </div>
+
+          <!-- Reservation ID & Instrument -->
+          <div class="text-center mb-5">
+            <span class="text-[10px] text-vortex-gray uppercase block tracking-widest font-bold">RESERVATION ID</span>
+            <h2 id="pass-res-id" class="text-3xl font-display font-black text-vortex-cyan tracking-tight mt-0.5">#RES-9401</h2>
+            <p id="pass-inst-name" class="text-sm font-bold text-white mt-1 uppercase tracking-wide">BRUKER AVANCE 600MHz NMR SPECTROMETER</p>
+            <p id="pass-lab-loc" class="text-xs text-vortex-gray mt-0.5">SPECTROSCOPY WING · ROOM 304B</p>
+          </div>
+
+          <!-- Scannable Matrix with Cyber Reticles & Laser Effect -->
+          <div class="relative mx-auto w-56 h-56 bg-white p-3 mb-5 rounded-sm border-2 border-vortex-cyan flex flex-col items-center justify-center shadow-[0_0_25px_rgba(0,245,212,0.3)] overflow-hidden">
+            <!-- Targeting Brackets -->
+            <span class="absolute -top-1.5 -left-1.5 w-3.5 h-3.5 border-t-2 border-l-2 border-vortex-cyan"></span>
+            <span class="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 border-t-2 border-r-2 border-vortex-cyan"></span>
+            <span class="absolute -bottom-1.5 -left-1.5 w-3.5 h-3.5 border-b-2 border-l-2 border-vortex-cyan"></span>
+            <span class="absolute -bottom-1.5 -right-1.5 w-3.5 h-3.5 border-b-2 border-r-2 border-vortex-cyan"></span>
+
+            <!-- Laser Scanning Beam -->
+            <div id="laser-beam" class="laser-scan absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-vortex-cyan to-transparent shadow-[0_0_8px_#00F5D4] z-10 pointer-events-none"></div>
+
+            <div id="pass-qr-svg" class="w-full h-full flex items-center justify-center relative z-0 p-1" aria-label="Scannable Hardware Access Pass QR Code"></div>
+          </div>
+
+          <!-- Pass Holder & Token Metadata -->
+          <div class="space-y-2 text-center text-xs mb-5 border-t border-b border-vortex-border py-3 bg-vortex-black/50">
+            <div class="flex justify-between px-2 text-[11px]">
+              <span class="text-vortex-gray uppercase">HOLDER:</span>
+              <span id="pass-holder-name" class="text-vortex-white font-bold">Samantha Lee (PhD Candidate · Chemistry)</span>
+            </div>
+            <div class="flex justify-between px-2 text-[11px]">
+              <span class="text-vortex-gray uppercase">RESERVED WINDOW:</span>
+              <span id="pass-window-text" class="text-vortex-cyan font-bold">OCT 16, 2026 · 14:00 – 17:00</span>
+            </div>
+            <div class="flex justify-between px-2 text-[11px]">
+              <span class="text-vortex-gray uppercase">SUPERVISOR:</span>
+              <span id="pass-supervisor" class="text-vortex-gray">Prof. Dr. R. Vance</span>
+            </div>
+            <div class="flex justify-between px-2 text-[11px] pt-1 border-t border-vortex-border/50">
+              <span class="text-vortex-gray uppercase">SECURITY HASH:</span>
+              <span id="pass-token-hash" class="text-vortex-cyan font-code text-[10px]">HMAC-SHA256: 8f4e2c…a19d7b</span>
+            </div>
+          </div>
+
+          <!-- Status Message Live Feed -->
+          <div id="pass-feedback-msg" class="hidden mb-4 p-3 text-xs font-mono text-center rounded border" role="status"></div>
+
+          <!-- Terminal Action Trigger -->
+          <button id="btn-trigger-checkin" type="button" class="w-full py-3.5 bg-vortex-cyan text-vortex-black font-bold text-xs uppercase hover:bg-white transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.25)] min-h-[44px]">
+            SIMULATE TERMINAL CHECK-IN →
+          </button>
+        </div>
+      </section>
+
+      <!-- HARDWARE INTERLOCK TERMINAL TELEMETRY -->
+      <section class="lg:col-span-5 space-y-6" aria-label="Terminal Hardware Interlock Status">
+        <div class="border border-vortex-border p-6 glass-card">
+          <div class="flex items-center justify-between border-b border-vortex-border pb-3 mb-4">
+            <h3 class="text-lg font-display font-bold uppercase tracking-tight text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-vortex-emerald"></span>
+              Terminal Interlock Status
+            </h3>
+            <span class="text-[10px] font-mono text-vortex-gray">PORT #4092</span>
+          </div>
+
+          <div class="space-y-4 font-mono text-xs">
+            <div class="flex items-start justify-between p-2.5 bg-vortex-black/40 border border-vortex-border/70">
+              <div>
+                <span class="text-vortex-gray uppercase block text-[10px]">Cryptographic State</span>
+                <span class="text-vortex-white font-bold" id="diag-crypto">ECDSA P-256 + HMAC Valid</span>
+              </div>
+              <span class="text-vortex-emerald text-sm">✓</span>
+            </div>
+
+            <div class="flex items-start justify-between p-2.5 bg-vortex-black/40 border border-vortex-border/70">
+              <div>
+                <span class="text-vortex-gray uppercase block text-[10px]">Timeslot Grace Window</span>
+                <span class="text-vortex-white font-bold" id="diag-window">Within Allowed Window (±15m)</span>
+              </div>
+              <span class="text-vortex-emerald text-sm">✓</span>
+            </div>
+
+            <div class="flex items-start justify-between p-2.5 bg-vortex-black/40 border border-vortex-border/70">
+              <div>
+                <span class="text-vortex-gray uppercase block text-[10px]">Operator Qualification</span>
+                <span class="text-vortex-white font-bold" id="diag-qual">Level 2 Certified Operator</span>
+              </div>
+              <span class="text-vortex-emerald text-sm">✓</span>
+            </div>
+
+            <div class="flex items-start justify-between p-2.5 bg-vortex-black/40 border border-vortex-border/70">
+              <div>
+                <span class="text-vortex-gray uppercase block text-[10px]">Hardware Relay Interlock</span>
+                <span id="diag-relay" class="text-vortex-amber font-bold">ARMED · POWER LOCKED</span>
+              </div>
+              <span id="diag-relay-icon" class="text-vortex-amber text-sm">🔒</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terminal Verification Log Feed -->
+        <div class="border border-vortex-border p-5 glass-card font-mono text-xs">
+          <span class="text-vortex-gray uppercase block text-[10px] font-bold mb-2 tracking-wider">Audit & Verification Console</span>
+          <div id="terminal-audit-log" class="bg-vortex-black p-3 text-[11px] font-code text-vortex-gray space-y-1 rounded border border-vortex-border max-h-48 overflow-y-auto">
+            <div>[INIT] Terminal listener attached to interlock.</div>
+            <div>[AUTH] Token ready for redemption.</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="dash.js"></script>
+  <script src="qrcode.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var A = window.LabPulseAuth;
+      var D = window.LabPulseDash;
+
+      var PRESETS = {
+        nmr: {
+          id: '9401',
+          name: 'Bruker Avance 600MHz NMR Spectrometer',
+          lab: 'Spectroscopy Wing · Room 304B',
+          holder: 'Samantha Lee (PhD Candidate · Chemistry)',
+          supervisor: 'Prof. Dr. R. Vance',
+          window: 'OCT 16, 2026 · 14:00 – 17:00',
+          hash: 'HMAC-SHA256: 8f4e2c90a19d7b53e820'
+        },
+        tem: {
+          id: '8820',
+          name: 'JEOL Cryo-TEM 300kV Electron Microscope',
+          lab: 'Electron Microscopy Suite · Bay 1',
+          holder: 'Alex Rivera (Materials Research Fellow)',
+          supervisor: 'Dr. Katherine Sterling',
+          window: 'OCT 16, 2026 · 09:00 – 12:00',
+          hash: 'HMAC-SHA256: 3c91d4e082fa19b02715'
+        },
+        xrd: {
+          id: '7104',
+          name: 'Rigaku SmartLab X-Ray Diffractometer',
+          lab: 'Crystallography Lab · Room 112',
+          holder: 'Priya Patel (Postdoc Researcher)',
+          supervisor: 'Prof. Alan Turing',
+          window: 'OCT 16, 2026 · 12:30 – 14:30',
+          hash: 'HMAC-SHA256: f209a8bc43190e729910'
+        },
+        confocal: {
+          id: '6502',
+          name: 'Leica SP8 Confocal STED Super-Resolution',
+          lab: 'Bio-Photonics Center · Room 208',
+          holder: 'David Chen (B.Tech Senior)',
+          supervisor: 'Dr. Elena Rostova',
+          window: 'OCT 16, 2026 · 15:00 – 18:00',
+          hash: 'HMAC-SHA256: d841b590e82c3104aa19'
+        }
+      };
+
+      var currentPassKey = 'nmr';
+      var isCheckedIn = false;
+
+      function logAuditMsg(text) {
+        var log = document.getElementById('terminal-audit-log');
+        if (!log) return;
+        var row = document.createElement('div');
+        var now = new Date().toTimeString().slice(0, 8);
+        row.textContent = '[' + now + '] ' + text;
+        log.appendChild(row);
+        log.scrollTop = log.scrollHeight;
+      }
+
+      function renderPass(key) {
+        var p = PRESETS[key] || PRESETS.nmr;
+        currentPassKey = key;
+        isCheckedIn = false;
+
+        document.getElementById('pass-res-id').textContent = '#RES-' + p.id;
+        document.getElementById('pass-inst-name').textContent = p.name.toUpperCase();
+        document.getElementById('pass-lab-loc').textContent = p.lab.toUpperCase();
+        document.getElementById('pass-holder-name').textContent = p.holder;
+        document.getElementById('pass-supervisor').textContent = p.supervisor;
+        document.getElementById('pass-window-text').textContent = p.window;
+        document.getElementById('pass-token-hash').textContent = p.hash;
+
+        var qrContainer = document.getElementById('pass-qr-svg');
+        if (qrContainer) {
+          qrContainer.innerHTML = '';
+          var qrPayload = [
+            'LABPULSE HARDWARE ACCESS PASS',
+            '==============================',
+            'RESERVATION : #RES-' + p.id,
+            'INSTRUMENT  : ' + p.name.toUpperCase(),
+            'HOLDER      : ' + p.holder,
+            'LOCATION    : ' + p.lab.toUpperCase(),
+            'SUPERVISOR  : ' + p.supervisor,
+            'WINDOW      : ' + p.window,
+            'STATUS      : ACTIVE / VALID',
+            'INTERLOCK   : READY / UNLOCKED',
+            'SECURITY    : ' + p.hash
+          ].join('\n');
+
+          try {
+            if (typeof QRCode !== 'undefined') {
+              new QRCode(qrContainer, {
+                text: qrPayload,
+                width: 196,
+                height: 196,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+              });
+            } else {
+              var img = document.createElement('img');
+              img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=196x196&margin=2&data=' + encodeURIComponent(qrPayload);
+              img.alt = 'Access QR Pass';
+              img.className = 'w-full h-full object-contain';
+              qrContainer.appendChild(img);
+            }
+          } catch (err) {
+            console.warn('QR render error:', err);
+          }
+        }
+
+        // Reset indicators
+        document.getElementById('stat-pass-status').textContent = 'ACTIVE / VALID';
+        document.getElementById('stat-pass-status').className = 'text-xl font-bold font-display text-vortex-emerald block mt-1';
+        document.getElementById('stat-pass-relay').textContent = 'STANDBY';
+        document.getElementById('stat-pass-relay').className = 'text-xl font-bold font-display text-vortex-violet block mt-1';
+
+        document.getElementById('pass-badge').textContent = '[ACTIVE / VALID]';
+        document.getElementById('pass-badge').className = 'px-2 py-0.5 text-[10px] rounded border border-vortex-emerald/40 bg-vortex-emerald/10 text-vortex-emerald font-bold';
+
+        document.getElementById('diag-relay').textContent = 'ARMED · POWER LOCKED';
+        document.getElementById('diag-relay').className = 'text-vortex-amber font-bold';
+        document.getElementById('diag-relay-icon').textContent = '🔒';
+        document.getElementById('diag-relay-icon').className = 'text-vortex-amber text-sm';
+
+        var btn = document.getElementById('btn-trigger-checkin');
+        btn.disabled = false;
+        btn.textContent = 'SIMULATE TERMINAL CHECK-IN →';
+        btn.className = 'w-full py-3.5 bg-vortex-cyan text-vortex-black font-bold text-xs uppercase hover:bg-white transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(0,245,212,0.25)] min-h-[44px]';
+
+        var msg = document.getElementById('pass-feedback-msg');
+        msg.classList.add('hidden');
+
+        logAuditMsg('Pass #RES-' + p.id + ' loaded for ' + p.name);
+      }
+
+      // Check session on load
+      (async function init() {
+        var user = await A.initSession();
+        if (user) {
+          var chip = document.getElementById('user-chip');
+          if (chip) chip.textContent = user.name + ' (' + user.role + ')';
+        }
+
+        var btnLogout = document.getElementById('btn-logout');
+        if (btnLogout) {
+          btnLogout.addEventListener('click', async function () {
+            await A.logout();
+            window.location.replace('login.html');
+          });
+        }
+
+        // Check URL parameter ?bookingId=...
+        var params = new URLSearchParams(window.location.search);
+        var qId = params.get('bookingId') || params.get('id');
+        if (qId) {
+          // If a query parameter was passed, try to fetch pass from API
+          try {
+            var r = await A.api('/api/v1/qr/booking/' + encodeURIComponent(qId));
+            if (r.status === 200 && r.json && r.json.data && r.json.data.pass) {
+              var pass = r.json.data.pass;
+              document.getElementById('pass-res-id').textContent = '#RES-' + String(pass.bookingId || qId).slice(-4).toUpperCase();
+              logAuditMsg('API Pass loaded for booking ' + qId);
+            }
+          } catch (e) { /* use default presets */ }
+        }
+
+        renderPass('nmr');
+
+        // Preset switcher listener
+        document.getElementById('btn-reload-pass').addEventListener('click', function () {
+          var sel = document.getElementById('sel-pass-preset').value;
+          renderPass(sel);
+        });
+
+        // Trigger simulation
+        document.getElementById('btn-trigger-checkin').addEventListener('click', async function () {
+          if (isCheckedIn) return;
+          var btn = document.getElementById('btn-trigger-checkin');
+          btn.disabled = true;
+          btn.textContent = 'SCANNING & VALIDATING CRYPTOGRAPHIC TOKEN…';
+          logAuditMsg('Terminal scan beam triggered. Querying interlock authority…');
+
+          setTimeout(function () {
+            isCheckedIn = true;
+            document.getElementById('stat-pass-status').textContent = 'CHECKED IN';
+            document.getElementById('stat-pass-status').className = 'text-xl font-bold font-display text-vortex-cyan block mt-1';
+            document.getElementById('stat-pass-relay').textContent = 'UNLOCKED';
+            document.getElementById('stat-pass-relay').className = 'text-xl font-bold font-display text-vortex-emerald block mt-1';
+
+            document.getElementById('pass-badge').textContent = '[CHECKED IN / VERIFIED]';
+            document.getElementById('pass-badge').className = 'px-2 py-0.5 text-[10px] rounded border border-vortex-cyan/40 bg-vortex-cyan/10 text-vortex-cyan font-bold';
+
+            document.getElementById('diag-relay').textContent = 'ENERGIZED · INTERLOCK DISENGAGED';
+            document.getElementById('diag-relay').className = 'text-vortex-emerald font-bold';
+            document.getElementById('diag-relay-icon').textContent = '🔓';
+            document.getElementById('diag-relay-icon').className = 'text-vortex-emerald text-sm';
+
+            var msg = document.getElementById('pass-feedback-msg');
+            msg.textContent = '✓ TERMINAL SCAN SUCCESSFUL: HARDWARE INTERLOCK UNLOCKED. INSTRUMENT READY FOR EXPERIMENT.';
+            msg.className = 'mb-4 p-3 text-xs font-mono text-center rounded border border-vortex-emerald/50 bg-vortex-emerald/10 text-vortex-emerald';
+            msg.classList.remove('hidden');
+
+            btn.textContent = 'SESSION VERIFIED & ACTIVE';
+            btn.className = 'w-full py-3.5 bg-vortex-border/50 text-vortex-gray font-bold text-xs uppercase cursor-not-allowed min-h-[44px]';
+
+            logAuditMsg('200 OK: Check-in verified. Interlock relay unlocked at ' + new Date().toISOString());
+          }, 800);
+        });
+      })();
+    })();
+  </script>
+</body>
+</html>

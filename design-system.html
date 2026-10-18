@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabPulse — Design System & Component Library</title>
+  <meta name="description" content="Production-grade design tokens, UI primitives, and accessibility standards for LabPulse.">
+
+  <!-- Typography: Inter Tight, Plus Jakarta Sans, Inter, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            vortex: {
+              black: '#0A0D12',
+              card: '#121722',
+              border: '#222A3A',
+              white: '#F8FAFC',
+              gray: '#8A99AD',
+              cyan: '#00F5D4',
+              emerald: '#10B981',
+              amber: '#F59E0B',
+              rose: '#F43F5E',
+              violet: '#A855F7',
+            }
+          },
+          fontFamily: {
+            display: ['"Inter Tight"', '"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-vortex-black text-vortex-white font-sans antialiased min-h-screen flex flex-col overflow-x-hidden relative">
+
+  <!-- Ambient Vortex Glowing Background Orbs -->
+  <div class="vortex-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+  </div>
+
+  <!-- Keyboard Accessibility Skip Link -->
+  <a href="#main" class="skip-link">SKIP TO MAIN CONTENT</a>
+
+  <!-- Header Navigation -->
+  <header class="glass-nav sticky top-0 left-0 w-full z-50 px-6 sm:px-10 py-4 border-b border-vortex-border flex justify-between items-center text-xs font-mono">
+    <div class="flex items-center space-x-6">
+      <a href="index.html" class="text-sm font-display font-black tracking-tighter text-vortex-white flex items-center space-x-2">
+        <span class="w-3 h-3 bg-vortex-cyan inline-block rounded-xs shadow-[0_0_10px_#00F5D4]"></span>
+        <span>LABPULSE</span>
+        <span class="text-vortex-gray font-normal text-xs ml-2">/ DESIGN SYSTEM</span>
+      </a>
+      <span class="hidden md:inline-flex lp-badge lp-badge-cyan">v2.0 SPECIFICATION</span>
+    </div>
+
+    <nav class="flex items-center space-x-4 sm:space-x-6 font-bold uppercase tracking-wider" aria-label="System Menu">
+      <a href="index.html" class="text-vortex-gray hover:text-vortex-white transition-colors py-1 text-xs">Landing</a>
+      <a href="login.html" class="text-vortex-gray hover:text-vortex-white transition-colors py-1 text-xs">Login</a>
+      <a href="admin.html" class="text-vortex-gray hover:text-vortex-white transition-colors py-1 text-xs">Admin</a>
+      <a href="#components" class="lp-btn lp-btn-sm lp-btn-primary">COMPONENTS</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main" class="relative z-10 max-w-7xl w-full mx-auto px-6 sm:px-10 py-12 flex-1 space-y-16">
+
+    <!-- Hero Header -->
+    <header class="border-b border-vortex-border pb-10">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <div class="inline-flex items-center gap-2 mb-3">
+            <span class="lp-status-dot dot-cyan lp-status-dot-pulse"></span>
+            <span class="text-xs font-mono uppercase tracking-widest text-vortex-cyan font-bold">LIMS DESIGN SYSTEM & TOKEN ARCHITECTURE</span>
+          </div>
+          <h1 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-white">
+            DESIGN TOKENS &amp; UI FOUNDATIONS
+          </h1>
+          <p class="text-vortex-gray text-sm sm:text-base mt-2 max-w-2xl font-sans leading-relaxed">
+            Standardized design tokens, accessible components, and high-contrast interactions for laboratory research workflows, asset tracking, and hardware integration.
+          </p>
+        </div>
+
+        <!-- Quick Jump Navigation -->
+        <div class="flex flex-wrap gap-2 text-xs font-mono">
+          <a href="#tokens" class="lp-btn lp-btn-sm lp-btn-outline">Tokens</a>
+          <a href="#typography" class="lp-btn lp-btn-sm lp-btn-outline">Typography</a>
+          <a href="#buttons" class="lp-btn lp-btn-sm lp-btn-outline">Buttons</a>
+          <a href="#forms" class="lp-btn lp-btn-sm lp-btn-outline">Forms</a>
+          <a href="#cards" class="lp-btn lp-btn-sm lp-btn-outline">Cards</a>
+          <a href="#tables" class="lp-btn lp-btn-sm lp-btn-outline">Tables</a>
+          <a href="#feedback" class="lp-btn lp-btn-sm lp-btn-outline">Feedback</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- SECTION 1: Color System & Tokens -->
+    <section id="tokens" class="space-y-6">
+      <div class="flex items-center justify-between border-b border-vortex-border pb-3">
+        <div>
+          <h2 class="text-xl font-display font-bold uppercase tracking-tight text-white flex items-center gap-2">
+            <span class="w-2 h-2 bg-vortex-cyan inline-block"></span>
+            1. Color Tokens &amp; Semantic Palette
+          </h2>
+          <p class="text-xs text-vortex-gray mt-0.5">High-contrast, dark-mode calibrated colors configured in CSS custom properties.</p>
+        </div>
+        <span class="font-mono text-xs text-vortex-gray">WCAG 2.2 AA</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <!-- Swatch: Base Background -->
+        <div class="lp-card p-4 space-y-2 border border-vortex-border">
+          <div class="h-16 rounded border border-vortex-border" style="background-color: var(--lp-bg-base);"></div>
+          <div>
+            <span class="text-xs font-bold block text-white font-mono">Base BG</span>
+            <span class="text-[11px] text-vortex-gray font-mono block">#0A0D12</span>
+            <span class="text-[10px] text-vortex-cyan font-mono block">--lp-bg-base</span>
+          </div>
+        </div>
+
+        <!-- Swatch: Surface 1 -->
+        <div class="lp-card p-4 space-y-2 border border-vortex-border">
+          <div class="h-16 rounded border border-vortex-border" style="background-color: var(--lp-bg-surface-1);"></div>
+          <div>
+            <span class="text-xs font-bold block text-white font-mono">Surface Card</span>
+            <span class="text-[11px] text-vortex-gray font-mono block">#121722</span>
+            <span class="text-[10px] text-vortex-cyan font-mono block">--lp-bg-surface-1</span>
+          </div>
+        </div>
+
+        <!-- Swatch: Accent Cyan -->
+        <div class="lp-card p-4 space-y-2 border border-vortex-border">
+          <div class="h-16 rounded shadow-[0_0_15px_rgba(0,245,212,0.3)]" style="background-color: var(--lp-accent);"></div>
+          <div>
+            <span class="text-xs font-bold block text-white font-mono">Primary Accent</span>
+            <span class="text-[11px] text-vortex-gray font-mono block">#00F5D4</span>
+            <span class="text-[10px] text-vortex-cyan font-mono block">--lp-accent</span>
+          </div>
+        </div>
+
+        <!-- Swatch: Success Emerald -->
+        <div class="lp-card p-4 space-y-2 border border-vortex-border">
+          <div class="h-16 rounded shadow-[0_0_15px_rgba(16,185,129,0.3)]" style="background-color: var(--lp-status-success);"></div>
+          <div>
+            <span class="text-xs font-bold block text-white font-mono">Success</span>
+            <span class="text-[11px] text-vortex-gray font-mono block">#10B981</span>
+            <span class="text-[10px] text-vortex-emerald font-mono block">--lp-status-success</span>
+          </div>
+        </div>
+
+        <!-- Swatch: Warning Amber -->
+        <div class="lp-card p-4 space-y-2 border border-vortex-border">
+          <div class="h-16 rounded shadow-[0_0_15px_rgba(245,158,11,0.3)]" style="background-color: var(--lp-status-warning);"></div>
+          <div>
+            <span class="text-xs font-bold block text-white font-mono">Warning</span>
+            <span class="text-[11px] text-vortex-gray font-mono block">#F59E0B</span>
+            <span class="text-[10px] text-vortex-amber font-mono block">--lp-status-warning</span>
+          </div>
+        </div>
+
+        <!-- Swatch: Error Rose -->
+        <div class="lp-card p-4 space-y-2 border border-vortex-border">
+          <div class="h-16 rounded shadow-[0_0_15px_rgba(244,63,94,0.3)]" style="background-color: var(--lp-status-error);"></div>
+          <div>
+            <span class="text-xs font-bold block text-white font-mono">Error / Danger</span>
+            <span class="text-[11px] text-vortex-gray font-mono block">#F43F5E</span>
+            <span class="text-[10px] text-vortex-rose font-mono block">--lp-status-error</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Typography Scale -->
+    <section id="typography" class="space-y-6">
+      <div class="border-b border-vortex-border pb-3">
+        <h2 class="text-xl font-display font-bold uppercase tracking-tight text-white flex items-center gap-2">
+          <span class="w-2 h-2 bg-vortex-cyan inline-block"></span>
+          2. Typography Hierarchy
+        </h2>
+        <p class="text-xs text-vortex-gray mt-0.5">Dual-typeface strategy: Inter Tight for editorial headings, Plus Jakarta Sans for UI readability.</p>
+      </div>
+
+      <div class="lp-card space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 items-baseline gap-4 border-b border-vortex-border pb-4">
+          <div class="font-mono text-xs text-vortex-gray">Display Hero (48px)</div>
+          <div class="md:col-span-3 text-3xl sm:text-5xl font-display font-black uppercase tracking-tight text-white">
+            LABPULSE LIMS SYSTEM
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 items-baseline gap-4 border-b border-vortex-border pb-4">
+          <div class="font-mono text-xs text-vortex-gray">Page Title H1 (32px)</div>
+          <div class="md:col-span-3 text-2xl sm:text-3xl font-display font-bold uppercase tracking-tight text-white">
+            Instrumentation &amp; Calibration Schedule
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 items-baseline gap-4 border-b border-vortex-border pb-4">
+          <div class="font-mono text-xs text-vortex-gray">Section Title H2 (20px)</div>
+          <div class="md:col-span-3 text-xl font-display font-bold uppercase text-white">
+            Active Laboratory Workstations &amp; Telemetry
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 items-baseline gap-4 border-b border-vortex-border pb-4">
+          <div class="font-mono text-xs text-vortex-gray">Body Copy (14px)</div>
+          <div class="md:col-span-3 text-sm text-vortex-gray leading-relaxed max-w-2xl font-sans">
+            All instrument reservations are verified against real-time maintenance logs and post-repair calibration certifications. Zero unauthorized access is permitted under ISO/IEC 17025 protocols.
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 items-baseline gap-4">
+          <div class="font-mono text-xs text-vortex-gray">Tabular Numerals (13px)</div>
+          <div class="md:col-span-3 font-mono text-xs sm:text-sm text-vortex-cyan tracking-wider">
+            FREQ: 90 DAYS · DUE: 2026-11-15T09:00:00Z · NMR_RES_#4902 · STATUS_OK
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Buttons & Interactive Controls -->
+    <section id="buttons" class="space-y-6">
+      <div class="border-b border-vortex-border pb-3">
+        <h2 class="text-xl font-display font-bold uppercase tracking-tight text-white flex items-center gap-2">
+          <span class="w-2 h-2 bg-vortex-cyan inline-block"></span>
+          3. Button Variants &amp; Interactive States
+        </h2>
+        <p class="text-xs text-vortex-gray mt-0.5">Primary actions, secondary actions, destructive gates, loading spinners, and touch target sizing.</p>
+      </div>
+
+      <div class="lp-card space-y-6">
+        <!-- Variant Matrix -->
+        <div>
+          <span class="lp-label mb-3">Action Variants</span>
+          <div class="flex flex-wrap gap-4 items-center">
+            <button type="button" class="lp-btn lp-btn-md lp-btn-primary">Primary Action</button>
+            <button type="button" class="lp-btn lp-btn-md lp-btn-secondary">Secondary Action</button>
+            <button type="button" class="lp-btn lp-btn-md lp-btn-outline">Outline Action</button>
+            <button type="button" class="lp-btn lp-btn-md lp-btn-ghost">Ghost Action</button>
+            <button type="button" class="lp-btn lp-btn-md lp-btn-destructive">Destructive Action</button>
+            <button type="button" class="lp-btn lp-btn-md lp-btn-destructive-outline">Destructive Outline</button>
+            <button type="button" class="lp-btn lp-btn-link">Text Link Button</button>
+          </div>
+        </div>
+
+        <hr class="lp-divider">
+
+        <!-- Sizing Matrix -->
+        <div>
+          <span class="lp-label mb-3">Size Scale</span>
+          <div class="flex flex-wrap gap-4 items-center">
+            <button type="button" class="lp-btn lp-btn-sm lp-btn-primary">Small Button (32px)</button>
+            <button type="button" class="lp-btn lp-btn-md lp-btn-primary">Medium Button (40px)</button>
+            <button type="button" class="lp-btn lp-btn-lg lp-btn-primary">Large Button (48px)</button>
+          </div>
+        </div>
+
+        <hr class="lp-divider">
+
+        <!-- States: Disabled & Interactive Loading Toggle -->
+        <div>
+          <span class="lp-label mb-3">States: Disabled &amp; Loading</span>
+          <div class="flex flex-wrap gap-4 items-center">
+            <button type="button" class="lp-btn lp-btn-md lp-btn-primary" disabled aria-disabled="true">Disabled Button</button>
+            <button type="button" class="lp-btn lp-btn-md lp-btn-secondary" disabled aria-disabled="true">Disabled Secondary</button>
+            <button type="button" id="btn-toggle-loading" class="lp-btn lp-btn-md lp-btn-primary">
+              Click to Test Loading
+            </button>
+            <span class="text-xs text-vortex-gray font-mono">Active touch area ≥ 44px on coarse pointers</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: Form Controls & Validation -->
+    <section id="forms" class="space-y-6">
+      <div class="border-b border-vortex-border pb-3">
+        <h2 class="text-xl font-display font-bold uppercase tracking-tight text-white flex items-center gap-2">
+          <span class="w-2 h-2 bg-vortex-cyan inline-block"></span>
+          4. Form Inputs &amp; Validation States
+        </h2>
+        <p class="text-xs text-vortex-gray mt-0.5">High-contrast form fields, accessible error messaging, inline help, and password reveal controls.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Column A: Standard Inputs -->
+        <div class="lp-card space-y-4">
+          <h3 class="lp-card-title text-sm uppercase">Standard &amp; Enhanced Fields</h3>
+
+          <!-- Text Input -->
+          <div class="lp-form-group">
+            <label for="demo-input-name" class="lp-label">Full Name <span class="lp-required">*</span></label>
+            <input type="text" id="demo-input-name" class="lp-input" placeholder="e.g. Dr. Eleanor Vance" autocomplete="name">
+            <span class="lp-form-hint">Used for technician assignment &amp; audit trails</span>
+          </div>
+
+          <!-- Password with Show/Hide -->
+          <div class="lp-form-group">
+            <label for="demo-input-password" class="lp-label">Password <span class="lp-required">*</span></label>
+            <div class="relative">
+              <input type="password" id="demo-input-password" class="lp-input pr-16" placeholder="Enter secure passphrase" value="Passphrase@2026">
+              <button type="button" id="demo-toggle-pass" class="absolute right-2 top-1/2 -translate-y-1/2 text-vortex-gray hover:text-white font-mono text-[11px] px-2 py-1" aria-label="Toggle password visibility">
+                SHOW
+              </button>
+            </div>
+          </div>
+
+          <!-- Select Dropdown -->
+          <div class="lp-form-group">
+            <label for="demo-select-dept" class="lp-label">Academic Department</label>
+            <select id="demo-select-dept" class="lp-select">
+              <option value="chem">Department of Chemical Sciences</option>
+              <option value="physics">Applied Physics &amp; Optics</option>
+              <option value="bio">Biochemical Engineering</option>
+              <option value="mat">Materials Science &amp; Nanotech</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Column B: Validation States & Controls -->
+        <div class="lp-card space-y-4">
+          <h3 class="lp-card-title text-sm uppercase">Validation States &amp; Selectors</h3>
+
+          <!-- Error Field -->
+          <div class="lp-form-group">
+            <label for="demo-input-error" class="lp-label">Operator Email <span class="lp-required">*</span></label>
+            <input type="email" id="demo-input-error" class="lp-input is-error" value="invalid-email-address" aria-invalid="true" aria-describedby="demo-error-msg">
+            <span id="demo-error-msg" class="lp-form-error" role="alert">Please enter a valid institutional email address.</span>
+          </div>
+
+          <!-- Success Field -->
+          <div class="lp-form-group">
+            <label for="demo-input-success" class="lp-label">Instrument Serial Number</label>
+            <input type="text" id="demo-input-success" class="lp-input is-success" value="SN-NMR-600-VORTEX" readonly>
+            <span class="lp-form-hint text-emerald-400 font-mono">✓ Verified in equipment registry</span>
+          </div>
+
+          <!-- Checkboxes & Radios -->
+          <div class="pt-2 space-y-3">
+            <span class="lp-label">Operational Authorizations</span>
+            <div class="flex flex-wrap gap-6">
+              <label class="lp-checkbox-wrapper">
+                <input type="checkbox" class="lp-checkbox" checked>
+                <span>Level 3 Laser Safety Certified</span>
+              </label>
+              <label class="lp-checkbox-wrapper">
+                <input type="checkbox" class="lp-checkbox">
+                <span>Cryogenics Protocol Signed</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: Surfaces, Panels & Badges -->
+    <section id="cards" class="space-y-6">
+      <div class="border-b border-vortex-border pb-3">
+        <h2 class="text-xl font-display font-bold uppercase tracking-tight text-white flex items-center gap-2">
+          <span class="w-2 h-2 bg-vortex-cyan inline-block"></span>
+          5. Surfaces, Metric Cards &amp; Status Badges
+        </h2>
+        <p class="text-xs text-vortex-gray mt-0.5">Telemetry telemetry counters, status indicators, and modular panel containers.</p>
+      </div>
+
+      <!-- Metric Cards Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="lp-metric-card">
+          <span class="lp-metric-label">TOTAL INSTRUMENTS</span>
+          <span class="lp-metric-value text-white">48</span>
+          <span class="lp-metric-subtext text-emerald-400">
+            <span class="lp-status-dot dot-emerald"></span> 100% CATALOGED
+          </span>
+        </div>
+
+        <div class="lp-metric-card">
+          <span class="lp-metric-label">AVAILABLE NOW</span>
+          <span class="lp-metric-value text-vortex-cyan">34</span>
+          <span class="lp-metric-subtext text-vortex-cyan">
+            <span class="lp-status-dot dot-cyan"></span> READY FOR SESSION
+          </span>
+        </div>
+
+        <div class="lp-metric-card">
+          <span class="lp-metric-label">CALIBRATION DUE</span>
+          <span class="lp-metric-value text-vortex-amber">05</span>
+          <span class="lp-metric-subtext text-amber-400">
+            <span class="lp-status-dot dot-amber"></span> WINDOW IN 7 DAYS
+          </span>
+        </div>
+
+        <div class="lp-metric-card">
+          <span class="lp-metric-label">ACTIVE OUT OF ORDER</span>
+          <span class="lp-metric-value text-vortex-rose">02</span>
+          <span class="lp-metric-subtext text-rose-400">
+            <span class="lp-status-dot dot-rose"></span> UNDER REVIEW
+          </span>
+        </div>
+      </div>
+
+      <!-- Badge Showcase -->
+      <div class="lp-card space-y-4">
+        <h3 class="lp-card-title text-sm uppercase">Status Badges &amp; Lifecycle Pills</h3>
+        <div class="flex flex-wrap gap-3 items-center">
+          <span class="lp-badge lp-badge-emerald">
+            <span class="lp-status-dot dot-emerald lp-status-dot-pulse"></span> AVAILABLE
+          </span>
+          <span class="lp-badge lp-badge-cyan">
+            <span class="lp-status-dot dot-cyan"></span> IN SESSION
+          </span>
+          <span class="lp-badge lp-badge-amber">
+            <span class="lp-status-dot dot-amber"></span> CALIBRATION DUE
+          </span>
+          <span class="lp-badge lp-badge-rose">
+            <span class="lp-status-dot dot-rose"></span> OUT OF ORDER
+          </span>
+          <span class="lp-badge lp-badge-violet">
+            <span class="lp-status-dot dot-rose"></span> MAINTENANCE
+          </span>
+          <span class="lp-badge lp-badge-muted">
+            SUSPENDED
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: Data Presentation & Tables -->
+    <section id="tables" class="space-y-6">
+      <div class="border-b border-vortex-border pb-3">
+        <h2 class="text-xl font-display font-bold uppercase tracking-tight text-white flex items-center gap-2">
+          <span class="w-2 h-2 bg-vortex-cyan inline-block"></span>
+          6. Data Table Presentation &amp; Empty State
+        </h2>
+        <p class="text-xs text-vortex-gray mt-0.5">Responsive data tables with tabular numerals, sticky headers, and action rows.</p>
+      </div>
+
+      <!-- Table Component -->
+      <div class="lp-table-wrapper">
+        <table class="lp-table" aria-label="Sample Laboratory Instruments Table">
+          <thead>
+            <tr>
+              <th scope="col">Instrument Name</th>
+              <th scope="col">Serial No.</th>
+              <th scope="col">Category</th>
+              <th scope="col">Status</th>
+              <th scope="col">Next Due</th>
+              <th scope="col" class="text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-bold text-white">Bruker Avance 600MHz NMR</td>
+              <td class="font-mono text-xs text-vortex-gray">SN-NMR-600</td>
+              <td>Spectroscopy</td>
+              <td><span class="lp-badge lp-badge-emerald">AVAILABLE</span></td>
+              <td class="font-mono text-xs">2026-11-20</td>
+              <td class="text-right">
+                <button type="button" class="lp-btn lp-btn-sm lp-btn-outline">VIEW</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="font-bold text-white">JEOL JEM-2100 Plus TEM</td>
+              <td class="font-mono text-xs text-vortex-gray">SN-TEM-2100</td>
+              <td>Electron Optics</td>
+              <td><span class="lp-badge lp-badge-cyan">IN SESSION</span></td>
+              <td class="font-mono text-xs">2026-10-30</td>
+              <td class="text-right">
+                <button type="button" class="lp-btn lp-btn-sm lp-btn-outline">VIEW</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="font-bold text-white">Agilent 7890B Gas Chromatograph</td>
+              <td class="font-mono text-xs text-vortex-gray">SN-GC-7890</td>
+              <td>Chromatography</td>
+              <td><span class="lp-badge lp-badge-amber">CALIBRATION DUE</span></td>
+              <td class="font-mono text-xs text-amber-400">2026-10-15</td>
+              <td class="text-right">
+                <button type="button" class="lp-btn lp-btn-sm lp-btn-outline">VIEW</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="font-bold text-white">Malvern Zetasizer Nano ZS</td>
+              <td class="font-mono text-xs text-vortex-gray">SN-ZS-90</td>
+              <td>Light Scattering</td>
+              <td><span class="lp-badge lp-badge-rose">OUT OF ORDER</span></td>
+              <td class="font-mono text-xs text-rose-400">IMMEDIATE</td>
+              <td class="text-right">
+                <button type="button" class="lp-btn lp-btn-sm lp-btn-destructive-outline">TRIAGE</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State Demo -->
+      <div class="lp-card">
+        <h3 class="lp-card-title text-sm uppercase mb-4">Empty State Pattern</h3>
+        <div class="lp-empty-state border border-dashed border-vortex-border rounded-lg">
+          <div class="lp-empty-icon" aria-hidden="true">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+          </div>
+          <h4 class="lp-empty-title">No Active Breakage Incidents</h4>
+          <p class="lp-empty-desc">
+            All registered instruments have passed routine validation and diagnostic checks with zero outstanding damage reports.
+          </p>
+          <button type="button" class="lp-btn lp-btn-sm lp-btn-outline">+ SUBMIT DIAGNOSTIC LOG</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: Feedback, Toasts & Skeletons -->
+    <section id="feedback" class="space-y-6">
+      <div class="border-b border-vortex-border pb-3">
+        <h2 class="text-xl font-display font-bold uppercase tracking-tight text-white flex items-center gap-2">
+          <span class="w-2 h-2 bg-vortex-cyan inline-block"></span>
+          7. Feedback Alerts, Skeletons &amp; Toasts
+        </h2>
+        <p class="text-xs text-vortex-gray mt-0.5">Interactive notifications, loading shimmers, and inline system notice banners.</p>
+      </div>
+
+      <!-- Alert Banners -->
+      <div class="space-y-3">
+        <div class="lp-alert lp-alert-info">
+          <div>
+            <strong>NOTICE:</strong> Lab spectrometer firmware upgrade scheduled for Sunday at 02:00 UTC. Network interlocks will temporarily disconnect.
+          </div>
+        </div>
+        <div class="lp-alert lp-alert-success">
+          <div>
+            <strong>SUCCESS:</strong> Operator certification for Level 4 High-Resolution TEM has been authenticated and stamped to the blockchain audit log.
+          </div>
+        </div>
+        <div class="lp-alert lp-alert-warning">
+          <div>
+            <strong>CALIBRATION WARNING:</strong> Agilent 7890B is within its 14-day calibration window. Booking will lock automatically after Oct 25.
+          </div>
+        </div>
+        <div class="lp-alert lp-alert-error">
+          <div>
+            <strong>INTERLOCK LOCKED:</strong> Safety interlock on Chamber #3 is engaged due to vacuum pressure variance. Session disabled.
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton Loading Demo & Toast Launcher -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+        <!-- Skeletons -->
+        <div class="lp-card space-y-4">
+          <h3 class="lp-card-title text-sm uppercase">Skeleton Shimmer Loaders</h3>
+          <p class="text-xs text-vortex-gray">Subtle shimmer indicating asynchronous data fetches without layout shifts.</p>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <span class="lp-skeleton lp-skeleton-circle"></span>
+              <div class="flex-1 space-y-2">
+                <span class="lp-skeleton lp-skeleton-text" style="width: 70%;"></span>
+                <span class="lp-skeleton lp-skeleton-text" style="width: 40%;"></span>
+              </div>
+            </div>
+            <span class="lp-skeleton lp-skeleton-text" style="height: 2.5rem;"></span>
+            <span class="lp-skeleton lp-skeleton-text" style="height: 1.5rem; width: 85%;"></span>
+          </div>
+        </div>
+
+        <!-- Interactive Toast & Modal Launcher -->
+        <div class="lp-card space-y-4">
+          <h3 class="lp-card-title text-sm uppercase">Interactive Overlays &amp; Toasts</h3>
+          <p class="text-xs text-vortex-gray">Trigger live accessible toast notifications and accessible modal dialogs.</p>
+
+          <div class="flex flex-wrap gap-2">
+            <button type="button" id="demo-toast-success" class="lp-btn lp-btn-sm lp-btn-primary">Toast Success</button>
+            <button type="button" id="demo-toast-warning" class="lp-btn lp-btn-sm lp-btn-secondary">Toast Warning</button>
+            <button type="button" id="demo-toast-error" class="lp-btn lp-btn-sm lp-btn-destructive">Toast Error</button>
+            <button type="button" id="demo-toast-info" class="lp-btn lp-btn-sm lp-btn-outline">Toast Info</button>
+          </div>
+
+          <div class="pt-2">
+            <button type="button" id="demo-open-modal" class="lp-btn lp-btn-md lp-btn-primary w-full">
+              OPEN ACCESSIBLE MODAL DIALOG
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ACCESSIBLE DEMO MODAL DIALOG -->
+  <div id="demo-modal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/80 backdrop-blur-md p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+    <div class="lp-card max-w-lg w-full border border-vortex-cyan/50 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative">
+      <div class="lp-card-header">
+        <h3 id="modal-title" class="lp-card-title text-white uppercase text-base flex items-center gap-2">
+          <span class="w-2.5 h-2.5 bg-vortex-cyan inline-block"></span>
+          Sample System Confirmation Dialog
+        </h3>
+        <button type="button" id="demo-close-modal" class="text-vortex-gray hover:text-white font-mono text-sm px-2 py-1" aria-label="Close dialog">
+          ✕
+        </button>
+      </div>
+
+      <div class="lp-card-body space-y-3">
+        <p id="modal-desc" class="text-xs text-vortex-gray leading-relaxed font-sans">
+          This dialog demonstrates WCAG 2.2 compliant modal accessibility:
+        </p>
+        <ul class="text-xs text-vortex-white space-y-1.5 list-disc pl-5 font-mono">
+          <li>Traps keyboard Tab focus within modal bounds</li>
+          <li>Dismisses cleanly via Escape key</li>
+          <li>Restores focus to trigger button upon close</li>
+          <li>Prevents body scrolling while active</li>
+        </ul>
+      </div>
+
+      <div class="lp-card-footer flex justify-end gap-3">
+        <button type="button" id="demo-modal-cancel" class="lp-btn lp-btn-sm lp-btn-secondary">Cancel</button>
+        <button type="button" id="demo-modal-confirm" class="lp-btn lp-btn-sm lp-btn-primary">Confirm &amp; Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="w-full px-6 sm:px-10 py-10 bg-vortex-black text-vortex-gray font-mono text-xs border-t border-vortex-border mt-16 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div class="flex items-center space-x-2">
+      <span class="w-2 h-2 bg-vortex-cyan inline-block rounded-xs"></span>
+      <span class="text-white font-bold">LABPULSE UI/UX DESIGN SYSTEM</span>
+      <span>— MODULE 02</span>
+    </div>
+    <div class="flex items-center space-x-6 text-[11px]">
+      <span class="text-vortex-cyan">WCAG 2.2 AA READY</span>
+      <a href="index.html" class="hover:text-white transition-colors">RETURN TO SYSTEM →</a>
+    </div>
+  </footer>
+
+  <!-- Reusable UI System Scripts -->
+  <script src="ui-system.js"></script>
+
+  <!-- Interactive Component Bindings -->
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. Password reveal toggle
+      var passInput = document.getElementById('demo-input-password');
+      var passBtn = document.getElementById('demo-toggle-pass');
+      if (passInput && passBtn) {
+        passBtn.addEventListener('click', function () {
+          var isPass = passInput.type === 'password';
+          passInput.type = isPass ? 'text' : 'password';
+          passBtn.textContent = isPass ? 'HIDE' : 'SHOW';
+          passBtn.setAttribute('aria-label', isPass ? 'Hide password' : 'Show password');
+        });
+      }
+
+      // 2. Loading state toggle
+      var loadBtn = document.getElementById('btn-toggle-loading');
+      if (loadBtn) {
+        loadBtn.addEventListener('click', function () {
+          window.LabPulseUI.setButtonLoading(loadBtn, true, 'Processing telemetry...');
+          setTimeout(function () {
+            window.LabPulseUI.setButtonLoading(loadBtn, false);
+            window.LabPulseUI.toast({
+              title: 'COMPLETE',
+              message: 'Interactive button loading cycle completed.',
+              type: 'success'
+            });
+          }, 2000);
+        });
+      }
+
+      // 3. Toast triggers
+      var toastSuccessBtn = document.getElementById('demo-toast-success');
+      if (toastSuccessBtn) {
+        toastSuccessBtn.addEventListener('click', function () {
+          window.LabPulseUI.toast({
+            title: 'VERIFIED',
+            message: 'Equipment reservation confirmed and dispatched.',
+            type: 'success'
+          });
+        });
+      }
+
+      var toastWarnBtn = document.getElementById('demo-toast-warning');
+      if (toastWarnBtn) {
+        toastWarnBtn.addEventListener('click', function () {
+          window.LabPulseUI.toast({
+            title: 'CALIBRATION DUE',
+            message: 'Instrument calibration window closes in 48 hours.',
+            type: 'warning'
+          });
+        });
+      }
+
+      var toastErrBtn = document.getElementById('demo-toast-error');
+      if (toastErrBtn) {
+        toastErrBtn.addEventListener('click', function () {
+          window.LabPulseUI.toast({
+            title: 'CIRCUIT INTERRUPTED',
+            message: 'Hardware interlock engaged. Booking disabled.',
+            type: 'error'
+          });
+        });
+      }
+
+      var toastInfoBtn = document.getElementById('demo-toast-info');
+      if (toastInfoBtn) {
+        toastInfoBtn.addEventListener('click', function () {
+          window.LabPulseUI.toast({
+            title: 'SYSTEM TELEMETRY',
+            message: 'All sensor nodes transmitting at 60Hz.',
+            type: 'info'
+          });
+        });
+      }
+
+      // 4. Modal dialog trigger
+      var openModalBtn = document.getElementById('demo-open-modal');
+      var closeModalBtn = document.getElementById('demo-close-modal');
+      var modalCancelBtn = document.getElementById('demo-modal-cancel');
+      var modalConfirmBtn = document.getElementById('demo-modal-confirm');
+
+      if (openModalBtn) {
+        openModalBtn.addEventListener('click', function () {
+          window.LabPulseUI.openModal('demo-modal');
+        });
+      }
+
+      function closeDemoModal() {
+        window.LabPulseUI.closeModal('demo-modal');
+      }
+
+      if (closeModalBtn) closeModalBtn.addEventListener('click', closeDemoModal);
+      if (modalCancelBtn) modalCancelBtn.addEventListener('click', closeDemoModal);
+      if (modalConfirmBtn) {
+        modalConfirmBtn.addEventListener('click', function () {
+          closeDemoModal();
+          window.LabPulseUI.toast({
+            title: 'ACTION CONFIRMED',
+            message: 'Dialog action processed successfully.',
+            type: 'success'
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

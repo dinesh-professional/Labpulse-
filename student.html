@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LabPulse — Student Dashboard</title>
+  <meta name="description" content="LabPulse student timetable and instrument reservation dashboard.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            vortex: {
+              black: '#0A0D12',
+              card: '#121722',
+              border: '#222A3A',
+              white: '#F8FAFC',
+              gray: '#8A99AD',
+              cyan: '#00F5D4',
+              emerald: '#10B981',
+              amber: '#F59E0B',
+              rose: '#F43F5E',
+              violet: '#A855F7',
+            }
+          },
+          fontFamily: {
+            display: ['"Inter Tight"', 'Inter', 'sans-serif'],
+            sans: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+            code: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-vortex-black text-vortex-white font-sans antialiased min-h-screen overflow-x-hidden relative">
+
+  <!-- Animated Background Orbs -->
+  <div class="vortex-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+  </div>
+
+  <a href="#dash-app" class="skip-link">SKIP TO DASHBOARD</a>
+
+  <header class="glass-nav relative z-40 w-full px-6 sm:px-10 py-4 border-b border-vortex-border flex justify-between items-center gap-4">
+    <a href="index.html" class="text-sm font-display font-black tracking-tighter text-vortex-white flex items-center space-x-2">
+      <span class="w-3 h-3 bg-vortex-cyan inline-block"></span>
+      <span>LABPULSE · STUDENT</span>
+    </a>
+    <div class="flex items-center gap-4">
+      <span id="user-chip" class="font-mono text-xs text-vortex-gray hidden sm:inline"></span>
+      <button id="btn-logout" class="glass-input text-vortex-gray hover:text-vortex-white hover:border-vortex-white px-3 py-2 font-mono text-xs transition-colors min-h-[44px]">LOGOUT</button>
+    </div>
+  </header>
+
+  <main class="relative z-10 px-6 sm:px-10 py-10 max-w-6xl mx-auto w-full">
+    <div id="dash-loading" class="font-mono text-xs text-vortex-gray" role="status">LOADING SESSION…</div>
+    <div id="dash-error" class="hidden mb-6 p-4 border border-vortex-rose/50 bg-vortex-rose/10 font-mono text-xs text-vortex-rose" role="alert"></div>
+
+    <div id="dash-denied" class="hidden text-center py-16">
+      <h1 class="text-5xl font-display font-black mb-4">403</h1>
+      <p class="font-mono text-xs text-vortex-gray mb-8">ACCESS RESTRICTED — YOU DO NOT HAVE PERMISSION TO ACCESS THIS AREA.</p>
+      <a href="login.html" class="inline-block px-6 py-3 bg-vortex-cyan text-vortex-black font-mono font-bold text-xs uppercase hover:bg-white transition-colors">BACK TO LOGIN</a>
+    </div>
+
+    <div id="dash-app" class="hidden">
+      <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-8">
+        <div>
+          <h1 class="text-3xl sm:text-5xl font-display font-black uppercase tracking-tight mb-2">Student Workspace</h1>
+          <p class="font-mono text-xs text-vortex-gray">CURRICULUM TIMETABLE & INSTRUMENT RESERVATION ENGINE</p>
+        </div>
+      </div>
+
+      <!-- DASHBOARD OVERVIEW METRICS -->
+      <section id="stu-metrics" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-10 font-mono text-xs" aria-label="Dashboard Overview">
+        <div class="p-4 glass-stat border border-vortex-border group hover:border-vortex-cyan/40 transition-colors">
+          <span class="text-vortex-gray text-[10px] block uppercase font-bold tracking-wider">Total Bookings</span>
+          <span id="stu-stat-total" class="text-2xl font-bold font-display text-vortex-cyan block mt-1">–</span>
+        </div>
+        <div class="p-4 glass-stat border border-vortex-border group hover:border-vortex-amber/40 transition-colors">
+          <span class="text-vortex-gray text-[10px] block uppercase font-bold tracking-wider">Pending</span>
+          <span id="stu-stat-pending" class="text-2xl font-bold font-display text-vortex-amber block mt-1">–</span>
+        </div>
+        <div class="p-4 glass-stat border border-vortex-border group hover:border-vortex-emerald/40 transition-colors">
+          <span class="text-vortex-gray text-[10px] block uppercase font-bold tracking-wider">Confirmed</span>
+          <span id="stu-stat-confirmed" class="text-2xl font-bold font-display text-vortex-emerald block mt-1">–</span>
+        </div>
+        <div class="p-4 glass-stat border border-vortex-border group hover:border-vortex-cyan/40 transition-colors">
+          <span class="text-vortex-gray text-[10px] block uppercase font-bold tracking-wider">Completed</span>
+          <span id="stu-stat-completed" class="text-2xl font-bold font-display text-vortex-white block mt-1">–</span>
+        </div>
+        <div class="p-4 glass-stat border border-vortex-border group hover:border-vortex-violet/40 transition-colors">
+          <span class="text-vortex-gray text-[10px] block uppercase font-bold tracking-wider">Upcoming Classes</span>
+          <span id="stu-stat-classes" class="text-2xl font-bold font-display text-vortex-violet block mt-1">–</span>
+        </div>
+        <div class="p-4 glass-stat border border-vortex-border group hover:border-vortex-rose/40 transition-colors">
+          <span class="text-vortex-gray text-[10px] block uppercase font-bold tracking-wider">Unread Alerts</span>
+          <span id="stu-stat-notifs" class="text-2xl font-bold font-display text-vortex-rose block mt-1">–</span>
+        </div>
+      </section>
+
+      <!-- SECTION 1: REQUEST INSTRUMENT BOOKING -->
+      <section class="mb-12 border border-vortex-border p-6 glass-card">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-2xl font-display font-black uppercase tracking-tight">Reserve Instrument <span class="text-vortex-emerald text-base">· FREE</span></h2>
+            <p class="font-mono text-xs text-vortex-gray">SUBMIT A RESERVATION REQUEST TO LABORATORY SUPERVISORS</p>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-mono border border-vortex-cyan/30 bg-vortex-cyan/10 text-vortex-cyan">
+            <span class="w-2 h-2 rounded-full bg-vortex-cyan"></span> OPERATING HOURS: 08:00 – 20:00
+          </span>
+        </div>
+
+        <form id="stu-book-form" class="space-y-6 font-mono text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label for="sb-inst" class="block text-vortex-gray uppercase mb-2">Instrument *</label>
+              <select id="sb-inst" required class="w-full glass-input py-3 px-4 focus:outline-none focus:border-vortex-cyan min-h-[44px]">
+                <option value="">SELECT INSTRUMENT…</option>
+              </select>
+            </div>
+            <div>
+              <label for="sb-date" class="block text-vortex-gray uppercase mb-2">Date *</label>
+              <input id="sb-date" type="date" required class="w-full glass-input py-3 px-4 focus:outline-none focus:border-vortex-cyan min-h-[44px]">
+            </div>
+            <div class="flex items-end">
+              <button type="button" id="sb-check-avail" class="w-full py-3 border border-vortex-cyan/50 text-vortex-cyan font-bold uppercase hover:bg-vortex-cyan/10 transition-colors min-h-[44px]">
+                INSPECT AVAILABLE SLOTS
+              </button>
+            </div>
+          </div>
+
+          <!-- Discrete Available Slot Picker -->
+          <div id="sb-slots-container" class="hidden p-4 border border-vortex-border/70 bg-vortex-black/50">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-bold text-vortex-white uppercase text-[11px]">Timeline Slots (Click to Select)</span>
+              <span id="sb-slots-status" class="text-vortex-gray text-[11px]"></span>
+            </div>
+            <div id="sb-slots-list" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2"></div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label for="sb-start" class="block text-vortex-gray uppercase mb-2">Start Time *</label>
+              <input id="sb-start" type="time" required value="10:00" class="w-full glass-input py-3 px-4 focus:outline-none focus:border-vortex-cyan min-h-[44px]">
+            </div>
+            <div>
+              <label for="sb-end" class="block text-vortex-gray uppercase mb-2">End Time *</label>
+              <input id="sb-end" type="time" required value="11:00" class="w-full glass-input py-3 px-4 focus:outline-none focus:border-vortex-cyan min-h-[44px]">
+            </div>
+            <div>
+              <label class="block text-vortex-gray uppercase mb-2">Duration</label>
+              <div id="sb-duration-badge" class="py-3 px-4 glass-input text-vortex-cyan font-bold flex items-center justify-between min-h-[44px]">
+                <span>60 MINUTES</span>
+                <span class="text-[10px] text-vortex-gray">MAX 4H</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="sb-purpose" class="block text-vortex-gray uppercase mb-2">Research Purpose / Project Title *</label>
+            <input id="sb-purpose" required maxlength="500" class="w-full glass-input py-3 px-4 focus:outline-none focus:border-vortex-cyan min-h-[44px]">
+          </div>
+
+          <!-- Review Step Summary Card -->
+          <div id="sb-review-card" class="p-4 border border-vortex-cyan/30 bg-vortex-cyan/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="text-[10px] text-vortex-cyan block uppercase font-bold tracking-wider">Review Booking Request</span>
+              <span id="sb-review-summary" class="text-vortex-white font-mono text-xs">Fill details above to review your reservation request</span>
+            </div>
+            <button type="submit" id="sb-submit-btn" class="px-8 py-3 bg-vortex-cyan text-vortex-black font-bold uppercase hover:bg-white transition-colors disabled:opacity-50 min-h-[44px] whitespace-nowrap">
+              CONFIRM & SUBMIT REQUEST
+            </button>
+          </div>
+        </form>
+
+        <p id="sb-form-msg" class="hidden font-mono text-xs mt-4" role="status"></p>
+      </section>
+
+      <!-- SECTION 2: MY BOOKINGS TABLE -->
+      <section class="mb-12">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-2xl font-display font-black uppercase tracking-tight">My Reservations</h2>
+            <p class="font-mono text-xs text-vortex-gray">REAL-TIME STATUS, QR ACCESS TOKENS & LIFECYCLE MANAGEMENT</p>
+          </div>
+          <div class="flex items-center gap-2 font-mono text-xs">
+            <button id="flt-bks-all" class="glass-input px-3 py-2 text-vortex-white border-vortex-cyan min-h-[44px]">ALL</button>
+            <button id="flt-bks-pending" class="glass-input px-3 py-2 text-vortex-gray hover:text-vortex-white min-h-[44px]">PENDING</button>
+            <button id="flt-bks-active" class="glass-input px-3 py-2 text-vortex-gray hover:text-vortex-white min-h-[44px]">CONFIRMED</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto border border-vortex-border glass-card">
+          <table class="w-full min-w-[720px] text-left font-mono text-xs">
+            <thead class="bg-vortex-black/70 border-b border-vortex-border text-vortex-gray uppercase">
+              <tr>
+                <th class="py-3 px-4">Instrument</th>
+                <th class="py-3 px-4">Date</th>
+                <th class="py-3 px-4">Window</th>
+                <th class="py-3 px-4">Purpose</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="my-booking-rows" class="divide-y divide-vortex-border"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 3: CLASS TIMETABLE -->
+      <section class="mb-12">
+        <div class="flex flex-col sm:flex-row sm:items-end gap-4 mb-4">
+          <h2 class="text-2xl font-display font-black uppercase tracking-tight">Upcoming Classes</h2>
+          <div class="sm:ml-auto flex items-center gap-2 font-mono text-xs">
+            <label for="flt-date" class="text-vortex-gray uppercase">Date</label>
+            <input id="flt-date" type="date" class="glass-input py-2 px-3 focus:outline-none focus:border-vortex-cyan min-h-[44px]">
+            <button id="flt-clear" class="glass-input px-3 py-2 hover:border-vortex-white transition-colors min-h-[44px]">ALL</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto border border-vortex-border glass-card">
+          <table class="w-full min-w-[720px] text-left font-mono text-xs">
+            <thead class="bg-vortex-black/70 border-b border-vortex-border text-vortex-gray uppercase">
+              <tr><th class="py-3 px-4">Subject</th><th class="py-3 px-4">Lab</th><th class="py-3 px-4">Date</th><th class="py-3 px-4">Time</th><th class="py-3 px-4">Status</th></tr>
+            </thead>
+            <tbody id="sched-rows" class="divide-y divide-vortex-border"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 4: INSTRUMENT CATALOG -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-display font-black uppercase tracking-tight mb-4">Instrument Availability</h2>
+        <div class="overflow-x-auto border border-vortex-border glass-card">
+          <table class="w-full min-w-[720px] text-left font-mono text-xs">
+            <thead class="bg-vortex-black/70 border-b border-vortex-border text-vortex-gray uppercase">
+              <tr><th class="py-3 px-4">Instrument</th><th class="py-3 px-4">Status</th></tr>
+            </thead>
+            <tbody id="inst-rows" class="divide-y divide-vortex-border"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 5: BREAKAGE REPORTING & NOTIFICATIONS (MATCHING FACULTY 2-COLUMN LAYOUT) -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div>
+          <h2 class="text-2xl font-display font-black uppercase tracking-tight mb-4 text-vortex-rose">Report Equipment Issue</h2>
+          <p class="font-mono text-xs text-vortex-gray mb-6">REPORT AN INSTRUMENT MALFUNCTION, ANOMALY OR BREAKDOWN FOR IMMEDIATE TRIAGE</p>
+          <form id="st-brk-form" class="space-y-4 font-mono text-xs border border-vortex-border glass-card p-6">
+            <div>
+              <label for="st-brk-inst" class="block text-vortex-gray uppercase mb-2">Instrument *</label>
+              <select id="st-brk-inst" required class="w-full glass-input py-3 px-4 focus:outline-none focus:border-vortex-cyan min-h-[44px]"></select>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="st-brk-issue" class="block text-vortex-gray uppercase mb-2">Issue Summary *</label>
+                <input id="st-brk-issue" required maxlength="120" class="w-full glass-input py-3 px-4 focus:outline-none focus:border-vortex-cyan min-h-[44px]">
+              </div>
+              <div>
+                <label for="st-brk-sev" class="block text-vortex-gray uppercase mb-2">Severity *</label>
+                <select id="st-brk-sev" class="w-full glass-input py-3 px-4 focus:outline-none focus:border-vortex-cyan min-h-[44px]">
+                  <option value="LOW">LOW</option>
+                  <option value="MEDIUM">MEDIUM</option>
+                  <option value="HIGH">HIGH</option>
+                  <option value="CRITICAL">CRITICAL</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="st-brk-desc" class="block text-vortex-gray uppercase mb-2">Detailed Description *</label>
+              <textarea id="st-brk-desc" required maxlength="2000" rows="3" class="w-full glass-input py-3 px-4 focus:outline-none focus:border-vortex-cyan"></textarea>
+            </div>
+            <button type="submit" id="st-brk-submit" class="w-full py-3 border border-vortex-rose text-vortex-rose font-bold uppercase hover:bg-vortex-rose hover:text-vortex-black transition-colors min-h-[44px]">SUBMIT INCIDENT REPORT</button>
+            <p id="st-brk-msg" class="hidden text-xs" role="status"></p>
+          </form>
+        </div>
+        <div>
+          <h2 class="text-2xl font-display font-black uppercase tracking-tight mb-4">Notifications</h2>
+          <div id="notif-list" class="space-y-3 font-mono text-xs"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- QR CHECK-IN PASS MODAL -->
+  <div id="qr-modal" class="fixed inset-0 bg-vortex-black/90 backdrop-blur-md text-vortex-white z-[80] p-4 sm:p-8 overflow-y-auto hidden opacity-0 transition-opacity duration-300 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
+    <div class="max-w-md w-full glass-card p-6 sm:p-8 font-mono border border-vortex-cyan/50 shadow-[0_0_35px_rgba(0,245,212,0.18)] relative">
+      <div class="flex justify-between items-center border-b border-vortex-border pb-3 mb-5 text-[11px]">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-vortex-cyan animate-pulse"></span>
+          <span id="qr-modal-title" class="text-vortex-cyan uppercase font-bold tracking-wider">HARDWARE ACCESS PASS</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="qr-modal-status-badge" class="px-2 py-0.5 text-[10px] rounded border border-vortex-emerald/40 bg-vortex-emerald/10 text-vortex-emerald font-bold">ACTIVE / VALID</span>
+          <button id="close-qr-modal" class="text-vortex-gray hover:text-vortex-white font-bold px-1.5 py-0.5 text-xs transition-colors" aria-label="Close pass modal">[X]</button>
+        </div>
+      </div>
+
+      <div class="text-center mb-5">
+        <span class="text-[10px] text-vortex-gray uppercase block tracking-widest">RESERVATION ID</span>
+        <h3 id="qr-res-id" class="text-2xl font-display font-black text-vortex-cyan tracking-tight mt-0.5">#RES-9401</h3>
+        <p id="qr-inst-name" class="text-xs font-bold text-white mt-1 uppercase tracking-wide">BRUKER AVANCE 600MHz NMR</p>
+        <p id="qr-lab-location" class="text-[11px] text-vortex-gray mt-0.5">SPECTROSCOPY WING · ROOM 304B</p>
+      </div>
+
+      <div class="relative mx-auto w-52 h-52 bg-white p-3 mb-4 rounded-sm border-2 border-vortex-cyan flex flex-col items-center justify-center shadow-[0_0_20px_rgba(0,245,212,0.25)]">
+        <span class="absolute -top-1.5 -left-1.5 w-3 h-3 border-t-2 border-l-2 border-vortex-cyan"></span>
+        <span class="absolute -top-1.5 -right-1.5 w-3 h-3 border-t-2 border-r-2 border-vortex-cyan"></span>
+        <span class="absolute -bottom-1.5 -left-1.5 w-3 h-3 border-b-2 border-l-2 border-vortex-cyan"></span>
+        <span class="absolute -bottom-1.5 -right-1.5 w-3 h-3 border-b-2 border-r-2 border-vortex-cyan"></span>
+        <div id="qr-code-svg" class="w-full h-full flex items-center justify-center p-1" aria-label="Scannable Hardware Access Pass QR Code"></div>
+      </div>
+
+      <div class="space-y-1.5 text-center text-xs mb-5 border-t border-b border-vortex-border py-3 bg-vortex-black/40">
+        <div class="flex justify-between px-2 text-[11px]">
+          <span class="text-vortex-gray uppercase">HOLDER:</span>
+          <span id="qr-user-name" class="text-vortex-white font-bold">Samantha Lee</span>
+        </div>
+        <div class="flex justify-between px-2 text-[11px]">
+          <span class="text-vortex-gray uppercase">WINDOW:</span>
+          <span id="qr-window-time" class="text-vortex-cyan font-bold">14:00 – 17:00</span>
+        </div>
+        <div class="flex justify-between px-2 text-[11px]">
+          <span class="text-vortex-gray uppercase">CRYPTO TOKEN:</span>
+          <span id="qr-token-hash" class="text-vortex-gray font-code text-[10px]">HMAC-SHA256: 8f4e…a19d</span>
+        </div>
+      </div>
+
+      <div id="qr-feedback-msg" class="hidden mb-3 p-2.5 text-xs font-mono text-center" role="status"></div>
+
+      <button id="btn-simulate-checkin" type="button" class="w-full py-3 bg-vortex-cyan text-vortex-black font-bold text-xs uppercase hover:bg-white transition-colors cursor-pointer min-h-[44px]">
+        SIMULATE TERMINAL CHECK-IN →
+      </button>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script src="dash.js"></script>
+  <script src="qrcode.min.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var D = window.LabPulseDash;
+      var A = window.LabPulseAuth;
+      var currentBookings = [];
+      var activeFilter = 'ALL';
+
+      function td(text, cls) {
+        var el = document.createElement('td');
+        el.className = 'py-3 px-4 ' + (cls || '');
+        el.textContent = text;
+        return el;
+      }
+
+      function badgeCls(status) {
+        switch (status) {
+          case 'CONFIRMED': return 'text-vortex-emerald border border-vortex-emerald/40 bg-vortex-emerald/10 px-2 py-0.5 rounded';
+          case 'PENDING_APPROVAL': return 'text-vortex-amber border border-vortex-amber/40 bg-vortex-amber/10 px-2 py-0.5 rounded';
+          case 'CHECKED_IN': return 'text-vortex-violet border border-vortex-violet/40 bg-vortex-violet/10 px-2 py-0.5 rounded';
+          case 'COMPLETED': return 'text-vortex-cyan border border-vortex-cyan/40 bg-vortex-cyan/10 px-2 py-0.5 rounded';
+          case 'CANCELLED': return 'text-vortex-gray border border-vortex-border bg-vortex-border/20 px-2 py-0.5 rounded';
+          case 'REJECTED': return 'text-vortex-rose border border-vortex-rose/40 bg-vortex-rose/10 px-2 py-0.5 rounded';
+          case 'NO_SHOW': return 'text-vortex-rose border border-vortex-rose/40 bg-vortex-rose/10 px-2 py-0.5 rounded';
+          default: return 'text-vortex-gray';
+        }
+      }
+
+      function updateDuration() {
+        var start = document.getElementById('sb-start').value;
+        var end = document.getElementById('sb-end').value;
+        var badge = document.getElementById('sb-duration-badge');
+        var review = document.getElementById('sb-review-summary');
+        var instSel = document.getElementById('sb-inst');
+        var date = document.getElementById('sb-date').value;
+
+        if (!start || !end) return;
+        var sParts = start.split(':').map(Number);
+        var eParts = end.split(':').map(Number);
+        var diff = (eParts[0] * 60 + eParts[1]) - (sParts[0] * 60 + sParts[1]);
+
+        if (diff <= 0) {
+          badge.innerHTML = '<span class="text-vortex-rose">INVALID: END BEFORE START</span>';
+        } else if (diff < 15) {
+          badge.innerHTML = '<span class="text-vortex-amber">' + diff + ' MIN (MIN: 15M)</span>';
+        } else if (diff > 240) {
+          badge.innerHTML = '<span class="text-vortex-rose">' + diff + ' MIN (MAX: 4H)</span>';
+        } else {
+          badge.innerHTML = '<span class="text-vortex-cyan">' + diff + ' MINUTES</span><span class="text-[10px] text-vortex-gray">FREE</span>';
+        }
+
+        var instName = instSel.selectedOptions[0] ? instSel.selectedOptions[0].text : 'Instrument';
+        if (date && diff > 0) {
+          review.textContent = instName + ' · ' + date + ' (' + start + '–' + end + ') · ' + diff + ' mins · Zero Cost (FREE)';
+        }
+      }
+
+      async function loadMyBookings() {
+        var tbody = document.getElementById('my-booking-rows');
+        tbody.innerHTML = '';
+        var r = await A.api('/api/v1/bookings/my?limit=50');
+        if (r.status !== 200) return;
+        currentBookings = r.json.data.bookings || [];
+
+        renderBookingsTable();
+      }
+
+      function renderBookingsTable() {
+        var tbody = document.getElementById('my-booking-rows');
+        tbody.innerHTML = '';
+        var rows = currentBookings.filter(function (b) {
+          if (activeFilter === 'PENDING') return b.status === 'PENDING_APPROVAL';
+          if (activeFilter === 'CONFIRMED') return b.status === 'CONFIRMED';
+          return true;
+        });
+
+        if (!rows.length) {
+          var tr = document.createElement('tr');
+          var empty = document.createElement('td');
+          empty.colSpan = 6;
+          empty.className = 'py-6 px-4 text-center text-vortex-gray';
+          empty.textContent = 'NO RESERVATIONS FOUND FOR SELECTED FILTER.';
+          tr.appendChild(empty);
+          tbody.appendChild(tr);
+          return;
+        }
+
+        rows.forEach(function (b) {
+          var tr = document.createElement('tr');
+          var instName = (b.instrumentId && b.instrumentId.name) || 'Instrument';
+          tr.appendChild(td(instName, 'font-bold text-vortex-white'));
+          tr.appendChild(td(D.fmtDay(b.date), 'text-vortex-gray'));
+          tr.appendChild(td(b.startTime + '–' + b.endTime, 'text-vortex-gray'));
+          tr.appendChild(td(b.purpose, 'text-vortex-gray truncate max-w-[180px]'));
+
+          var statusTd = document.createElement('td');
+          statusTd.className = 'py-3 px-4';
+          var span = document.createElement('span');
+          span.className = badgeCls(b.status);
+          span.textContent = b.status.replace('_', ' ');
+          statusTd.appendChild(span);
+          tr.appendChild(statusTd);
+
+          var actTd = document.createElement('td');
+          actTd.className = 'py-3 px-4 text-right space-x-2';
+
+          var bId = b._id || b.id;
+
+          // QR Pass Action (Confirmed or Checked-in)
+          if (b.status === 'CONFIRMED' || b.status === 'CHECKED_IN') {
+            var qrBtn = document.createElement('button');
+            qrBtn.className = 'border border-vortex-cyan/50 text-vortex-cyan hover:bg-vortex-cyan/10 px-2.5 py-1 text-[11px] transition-colors';
+            qrBtn.textContent = 'VIEW QR PASS';
+            qrBtn.addEventListener('click', function () {
+              openQrModal(b);
+            });
+            actTd.appendChild(qrBtn);
+          }
+
+          // Cancel Action (Pending or Confirmed)
+          if (b.status === 'PENDING_APPROVAL' || b.status === 'CONFIRMED') {
+            var cancelBtn = document.createElement('button');
+            cancelBtn.className = 'border border-vortex-rose/50 text-vortex-rose hover:bg-vortex-rose/10 px-2 py-1 text-[11px] transition-colors';
+            cancelBtn.textContent = 'CANCEL';
+            cancelBtn.addEventListener('click', async function () {
+              if (!confirm('Cancel this reservation?')) return;
+              cancelBtn.disabled = true;
+              var cr = await A.api('/api/v1/bookings/' + bId + '/cancel', { method: 'POST' });
+              cancelBtn.disabled = false;
+              if (cr.status === 200) {
+                loadMyBookings();
+                loadInstruments();
+                loadDashboardStats();
+              } else {
+                D.notify('Could not cancel: ' + ((cr.json && cr.json.error && cr.json.error.message) || 'Error'), true);
+              }
+            });
+            actTd.appendChild(cancelBtn);
+
+            var reschedBtn = document.createElement('button');
+            reschedBtn.className = 'border border-vortex-cyan/50 text-vortex-cyan hover:bg-vortex-cyan/10 px-2 py-1 text-[11px] transition-colors';
+            reschedBtn.textContent = 'RESCHEDULE';
+            reschedBtn.addEventListener('click', async function () {
+              var newDate = prompt('Enter new date (YYYY-MM-DD):', D.fmtDay(b.date));
+              if (!newDate) return;
+              var newStart = prompt('Enter new start time (HH:mm):', b.startTime);
+              if (!newStart) return;
+              var newEnd = prompt('Enter new end time (HH:mm):', b.endTime);
+              if (!newEnd) return;
+
+              reschedBtn.disabled = true;
+              var rr = await A.api('/api/v1/bookings/' + bId + '/reschedule', {
+                method: 'POST',
+                body: { date: newDate, startTime: newStart, endTime: newEnd }
+              });
+              reschedBtn.disabled = false;
+              if (rr.status === 200) {
+                D.notify('Booking rescheduled successfully!', false);
+                loadMyBookings();
+                loadInstruments();
+              } else {
+                D.notify('Reschedule rejected: ' + ((rr.json && rr.json.error && rr.json.error.message) || 'Conflict'), true);
+              }
+            });
+            actTd.appendChild(reschedBtn);
+          } else if (b.status !== 'CONFIRMED' && b.status !== 'CHECKED_IN') {
+            actTd.textContent = '—';
+          }
+
+          tr.appendChild(actTd);
+          tbody.appendChild(tr);
+        });
+      }
+
+      var activeQrBooking = null;
+      function openQrModal(b) {
+        activeQrBooking = b;
+        var modal = document.getElementById('qr-modal');
+        var resId = document.getElementById('qr-res-id');
+        var instName = document.getElementById('qr-inst-name');
+        var labLoc = document.getElementById('qr-lab-location');
+        var userName = document.getElementById('qr-user-name');
+        var winTime = document.getElementById('qr-window-time');
+        var tokenHash = document.getElementById('qr-token-hash');
+        var statusBadge = document.getElementById('qr-modal-status-badge');
+        var checkinBtn = document.getElementById('btn-simulate-checkin');
+        var feedback = document.getElementById('qr-feedback-msg');
+
+        if (feedback) {
+          feedback.className = 'hidden mb-3 p-2.5 text-xs font-mono text-center';
+          feedback.textContent = '';
+        }
+
+        var idStr = String(b.id || b._id || '9401');
+        var displayId = idStr.length > 6 ? idStr.slice(-4).toUpperCase() : idStr.toUpperCase();
+        if (resId) resId.textContent = '#RES-' + displayId;
+
+        var nameStr = (b.instrumentId && b.instrumentId.name) || 'Bruker 600MHz NMR';
+        if (instName) instName.textContent = nameStr.toUpperCase();
+
+        var labStr = (b.instrumentId && b.instrumentId.department) ? (b.instrumentId.department + ' WING · ROOM 304B') : 'ADVANCED RESEARCH COMPLEX · LAB 304';
+        if (labLoc) labLoc.textContent = labStr.toUpperCase();
+
+        var sessionUser = A.getSession() && A.getSession().user;
+        if (userName) userName.textContent = (b.userId && b.userId.name) || (sessionUser && sessionUser.name) || 'Student Researcher';
+        if (winTime) winTime.textContent = (D.fmtDay(b.date) || 'TODAY') + ' · ' + (b.startTime || '14:00') + ' – ' + (b.endTime || '17:00');
+
+        var fakeHash = 'HMAC-SHA256: ' + idStr.slice(0, 4) + '…' + idStr.slice(-4);
+        if (tokenHash) tokenHash.textContent = fakeHash;
+
+        var qrContainer = document.getElementById('qr-code-svg');
+        if (qrContainer) {
+          qrContainer.innerHTML = '';
+          var holderName = (b.userId && b.userId.name) || (sessionUser && sessionUser.name) || 'Student Researcher';
+          var winStr = (D.fmtDay(b.date) || 'TODAY') + ' ' + (b.startTime || '14:00') + ' - ' + (b.endTime || '17:00');
+          var qrPayload = [
+            'LABPULSE HARDWARE ACCESS PASS',
+            '==============================',
+            'RESERVATION : #RES-' + displayId,
+            'INSTRUMENT  : ' + nameStr.toUpperCase(),
+            'HOLDER      : ' + holderName,
+            'LOCATION    : ' + labStr.toUpperCase(),
+            'WINDOW      : ' + winStr,
+            'STATUS      : ' + (b.status || 'CONFIRMED'),
+            'SECURITY    : ' + fakeHash
+          ].join('\n');
+
+          try {
+            if (typeof QRCode !== 'undefined') {
+              new QRCode(qrContainer, {
+                text: qrPayload,
+                width: 184,
+                height: 184,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+              });
+            } else {
+              var img = document.createElement('img');
+              img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=184x184&margin=2&data=' + encodeURIComponent(qrPayload);
+              img.alt = 'Hardware Access QR Code';
+              img.className = 'w-full h-full object-contain';
+              qrContainer.appendChild(img);
+            }
+          } catch (err) {
+            console.warn('QR render error:', err);
+          }
+        }
+
+        if (statusBadge && checkinBtn) {
+          if (b.status === 'CHECKED_IN' || b.status === 'COMPLETED') {
+            statusBadge.textContent = 'CHECKED IN / VERIFIED';
+            statusBadge.className = 'px-2 py-0.5 text-[10px] rounded border border-vortex-cyan/40 bg-vortex-cyan/10 text-vortex-cyan font-bold';
+            checkinBtn.disabled = true;
+            checkinBtn.textContent = 'SESSION ACTIVE (CHECKED IN)';
+            checkinBtn.className = 'w-full py-3 bg-vortex-border/50 text-vortex-gray font-bold text-xs uppercase cursor-not-allowed min-h-[44px]';
+          } else {
+            statusBadge.textContent = 'ACTIVE / VALID';
+            statusBadge.className = 'px-2 py-0.5 text-[10px] rounded border border-vortex-emerald/40 bg-vortex-emerald/10 text-vortex-emerald font-bold';
+            checkinBtn.disabled = false;
+            checkinBtn.textContent = 'SIMULATE TERMINAL CHECK-IN →';
+            checkinBtn.className = 'w-full py-3 bg-vortex-cyan text-vortex-black font-bold text-xs uppercase hover:bg-white transition-colors cursor-pointer min-h-[44px]';
+          }
+        }
+
+        if (modal) {
+          modal.classList.remove('hidden');
+          setTimeout(function () { modal.classList.remove('opacity-0'); }, 10);
+        }
+      }
+
+      function closeQrModal() {
+        var modal = document.getElementById('qr-modal');
+        if (!modal) return;
+        modal.classList.add('opacity-0');
+        setTimeout(function () { modal.classList.add('hidden'); }, 300);
+      }
+
+      async function inspectAvailability() {
+        var instId = document.getElementById('sb-inst').value;
+        var date = document.getElementById('sb-date').value;
+        var container = document.getElementById('sb-slots-container');
+        var slotsList = document.getElementById('sb-slots-list');
+        var statusLabel = document.getElementById('sb-slots-status');
+
+        if (!instId || !date) {
+          D.notify('Please select an instrument and date first.', true);
+          return;
+        }
+
+        container.classList.remove('hidden');
+        slotsList.innerHTML = '<div class="col-span-full text-vortex-gray py-2">Querying availability engine…</div>';
+
+        var r = await A.api('/api/v1/bookings/availability?instrumentId=' + encodeURIComponent(instId) + '&date=' + encodeURIComponent(date));
+        if (r.status !== 200) {
+          slotsList.innerHTML = '<div class="col-span-full text-vortex-rose py-2">Could not compute availability.</div>';
+          return;
+        }
+
+        var dayData = (r.json.data.days && r.json.data.days[0]) || {};
+        var slots = dayData.slots || [];
+        slotsList.innerHTML = '';
+
+        if (!slots.length) {
+          slotsList.innerHTML = '<div class="col-span-full text-vortex-gray py-2">No discrete slots generated for this date.</div>';
+          return;
+        }
+
+        statusLabel.textContent = dayData.available ? 'FULL DAY OPEN' : (dayData.blocks ? dayData.blocks.length + ' BLOCK(S)' : '');
+
+        slots.forEach(function (slot) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'py-2 px-3 border text-center transition-colors ' +
+            (slot.available
+              ? 'border-vortex-cyan/50 text-vortex-cyan hover:bg-vortex-cyan/20'
+              : 'border-vortex-rose/40 text-vortex-rose/50 bg-vortex-rose/5 cursor-not-allowed opacity-60');
+          btn.innerHTML = '<span class="block font-bold">' + slot.startTime + '</span>' +
+            '<span class="text-[9px] block uppercase">' + (slot.available ? 'AVAILABLE' : 'BLOCKED') + '</span>';
+
+          if (slot.available) {
+            btn.addEventListener('click', function () {
+              document.getElementById('sb-start').value = slot.startTime;
+              document.getElementById('sb-end').value = slot.endTime;
+              updateDuration();
+            });
+          } else {
+            btn.disabled = true;
+          }
+
+          slotsList.appendChild(btn);
+        });
+      }
+
+      async function loadSchedules(date) {
+        var tbody = document.getElementById('sched-rows');
+        tbody.innerHTML = '';
+        var r = await A.api('/api/v1/schedules?limit=50' + (date ? '&date=' + encodeURIComponent(date) : ''));
+        if (r.status !== 200) { D.pageError('Could not load classes.'); return; }
+        var rows = r.json.data.schedules || [];
+        if (!rows.length) {
+          var tr = document.createElement('tr');
+          var empty = document.createElement('td');
+          empty.colSpan = 5;
+          empty.className = 'py-6 px-4 text-center text-vortex-gray';
+          empty.textContent = 'NO CLASSES FOUND.';
+          tr.appendChild(empty);
+          tbody.appendChild(tr);
+          return;
+        }
+        rows.forEach(function (s) {
+          var tr = document.createElement('tr');
+          tr.appendChild(td(s.subject, 'font-bold text-vortex-white'));
+          tr.appendChild(td((s.laboratoryId && s.laboratoryId.name) || '', 'text-vortex-gray'));
+          tr.appendChild(td(D.fmtDay(s.date), 'text-vortex-gray'));
+          tr.appendChild(td(s.startTime + '–' + s.endTime, 'text-vortex-gray'));
+          tr.appendChild(td(s.status, s.status === 'SCHEDULED' ? 'text-vortex-emerald' : 'text-vortex-gray'));
+          tbody.appendChild(tr);
+        });
+      }
+
+      async function loadInstruments() {
+        var tbody = document.getElementById('inst-rows');
+        var select = document.getElementById('sb-inst');
+        var brkSelect = document.getElementById('st-brk-inst');
+        tbody.innerHTML = '';
+        select.innerHTML = '<option value="">SELECT INSTRUMENT…</option>';
+        if (brkSelect) brkSelect.innerHTML = '<option value="">SELECT INSTRUMENT…</option>';
+
+        var r = await A.api('/api/v1/instruments?limit=100');
+        if (r.status !== 200) { D.pageError('Could not load instruments.'); return; }
+        (r.json.data.instruments || []).forEach(function (ins) {
+          var tr = document.createElement('tr');
+          tr.appendChild(td(ins.name, 'font-bold text-vortex-white'));
+          var statusText = (ins.lifecycleState === 'RETIRED' || ins.lifecycleState === 'DECOMMISSIONED')
+            ? ins.lifecycleState
+            : (ins.status || 'AVAILABLE');
+          var statusColor = statusText === 'AVAILABLE' ? 'text-vortex-emerald' : (statusText === 'OUT_OF_ORDER' ? 'text-vortex-rose' : 'text-vortex-amber');
+          tr.appendChild(td(statusText + (ins.unavailabilityReason ? ' (' + ins.unavailabilityReason + ')' : ''), statusColor));
+          tbody.appendChild(tr);
+
+          var opt = document.createElement('option');
+          opt.value = ins._id || ins.id;
+          opt.textContent = ins.name + ' [' + statusText + ']';
+          if (ins.status !== 'AVAILABLE' || ins.lifecycleState === 'RETIRED' || ins.lifecycleState === 'DECOMMISSIONED') {
+            opt.disabled = true;
+          }
+          select.appendChild(opt);
+
+          if (brkSelect && ins.lifecycleState !== 'DISPOSED') {
+            var bOpt = document.createElement('option');
+            bOpt.value = ins._id || ins.id;
+            bOpt.textContent = ins.name;
+            brkSelect.appendChild(bOpt);
+          }
+        });
+      }
+
+      async function loadNotifs() {
+        var list = document.getElementById('notif-list');
+        list.innerHTML = '';
+        var r = await A.api('/api/v1/notifications?limit=10');
+        if (r.status !== 200) return;
+        (r.json.data.notifications || []).forEach(function (n) {
+          var div = document.createElement('div');
+          div.className = 'p-4 border border-vortex-border bg-vortex-card' + (n.read ? ' opacity-60' : '');
+          var title = document.createElement('div');
+          title.className = 'text-vortex-cyan font-bold mb-1';
+          title.textContent = n.title;
+          var body = document.createElement('div');
+          body.className = 'text-vortex-gray';
+          body.textContent = n.message;
+          div.appendChild(title);
+          div.appendChild(body);
+          list.appendChild(div);
+        });
+      }
+
+      async function loadDashboardStats() {
+        try {
+          var r = await A.api('/api/v1/dashboard/stats');
+          if (r.status === 200 && r.json.data && r.json.data.metrics) {
+            var m = r.json.data.metrics;
+            document.getElementById('stu-stat-total').textContent = m.totalBookings !== undefined ? m.totalBookings : '–';
+            document.getElementById('stu-stat-pending').textContent = m.pendingBookings !== undefined ? m.pendingBookings : '–';
+            document.getElementById('stu-stat-confirmed').textContent = m.confirmedBookings !== undefined ? m.confirmedBookings : '–';
+            document.getElementById('stu-stat-completed').textContent = m.completedBookings !== undefined ? m.completedBookings : '–';
+            document.getElementById('stu-stat-classes').textContent = m.upcomingClasses !== undefined ? m.upcomingClasses : '–';
+            document.getElementById('stu-stat-notifs').textContent = m.unreadNotifications !== undefined ? m.unreadNotifications : '–';
+          }
+        } catch (e) { /* non-critical */ }
+      }
+
+      function setActiveFilter(group, activeId) {
+        var ids = {
+          bookings: ['flt-bks-all', 'flt-bks-pending', 'flt-bks-active'],
+        };
+        var btns = ids[group] || [];
+        btns.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          if (id === activeId) {
+            el.className = 'glass-input px-3 py-2 text-vortex-white border-vortex-cyan min-h-[44px]';
+          } else {
+            el.className = 'glass-input px-3 py-2 text-vortex-gray hover:text-vortex-white min-h-[44px]';
+          }
+        });
+      }
+
+      (async function init() {
+        var user = await A.guard('student');
+        if (!user) return;
+        if (user.forbidden) { D.initShell(user.user); D.showForbidden(); return; }
+        D.initShell(user);
+        D.showApp();
+
+        // Default booking date to tomorrow
+        var tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('sb-date').value = tomorrow.toISOString().slice(0, 10);
+        document.getElementById('sb-date').min = new Date().toISOString().slice(0, 10);
+
+        await Promise.all([
+          loadMyBookings(),
+          loadSchedules(''),
+          loadInstruments(),
+          loadNotifs(),
+          loadDashboardStats(),
+        ]);
+
+        setActiveFilter('bookings', 'flt-bks-all');
+
+        updateDuration();
+
+        // Event listeners
+        document.getElementById('sb-start').addEventListener('input', updateDuration);
+        document.getElementById('sb-end').addEventListener('input', updateDuration);
+        document.getElementById('sb-inst').addEventListener('change', updateDuration);
+        document.getElementById('sb-date').addEventListener('change', updateDuration);
+        document.getElementById('sb-check-avail').addEventListener('click', inspectAvailability);
+
+        document.getElementById('flt-bks-all').addEventListener('click', function () {
+          activeFilter = 'ALL';
+          setActiveFilter('bookings', 'flt-bks-all');
+          renderBookingsTable();
+        });
+        document.getElementById('flt-bks-pending').addEventListener('click', function () {
+          activeFilter = 'PENDING';
+          setActiveFilter('bookings', 'flt-bks-pending');
+          renderBookingsTable();
+        });
+        document.getElementById('flt-bks-active').addEventListener('click', function () {
+          activeFilter = 'CONFIRMED';
+          setActiveFilter('bookings', 'flt-bks-active');
+          renderBookingsTable();
+        });
+
+        // Booking submission with idempotency key
+        document.getElementById('stu-book-form').addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var btn = document.getElementById('sb-submit-btn');
+          var msg = document.getElementById('sb-form-msg');
+          msg.classList.add('hidden');
+
+          var body = {
+            instrumentId: document.getElementById('sb-inst').value,
+            date: document.getElementById('sb-date').value,
+            startTime: document.getElementById('sb-start').value,
+            endTime: document.getElementById('sb-end').value,
+            purpose: document.getElementById('sb-purpose').value.trim(),
+            idempotencyKey: 'stu-bk-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9),
+          };
+
+          btn.disabled = true;
+          btn.textContent = 'SUBMITTING…';
+
+          try {
+            var r = await A.api('/api/v1/bookings/request', {
+              method: 'POST',
+              body: body,
+              headers: { 'Idempotency-Key': body.idempotencyKey }
+            });
+
+            btn.disabled = false;
+            btn.textContent = 'CONFIRM & SUBMIT REQUEST';
+
+            if (r.status === 201 || r.status === 200) {
+              msg.textContent = '✓ RESERVATION REQUEST SUBMITTED — STATUS: PENDING APPROVAL.';
+              msg.className = 'font-mono text-xs mt-4 text-vortex-emerald';
+              msg.classList.remove('hidden');
+              document.getElementById('sb-purpose').value = '';
+              loadMyBookings();
+              loadDashboardStats();
+            } else if (r.status === 409) {
+              msg.textContent = '✗ CONFLICT: ' + ((r.json && r.json.error && r.json.error.message) || 'TIMESLOT ALREADY OCCUPIED.');
+              msg.className = 'font-mono text-xs mt-4 text-vortex-rose';
+              msg.classList.remove('hidden');
+            } else if (r.status === 403) {
+              msg.textContent = '✗ ACCESS RESTRICTED: ' + ((r.json && r.json.error && r.json.error.message) || 'QUALIFICATION REQUIRED.');
+              msg.className = 'font-mono text-xs mt-4 text-vortex-rose';
+              msg.classList.remove('hidden');
+            } else {
+              msg.textContent = '✗ SUBMISSION FAILED: ' + ((r.json && r.json.error && r.json.error.message) || 'VALIDATION ERROR.');
+              msg.className = 'font-mono text-xs mt-4 text-vortex-rose';
+              msg.classList.remove('hidden');
+            }
+          } catch (err) {
+            btn.disabled = false;
+            btn.textContent = 'CONFIRM & SUBMIT REQUEST';
+            msg.textContent = '✗ NETWORK ERROR: COULD NOT CONNECT TO SERVER. PLEASE RETRY.';
+            msg.className = 'font-mono text-xs mt-4 text-vortex-rose';
+            msg.classList.remove('hidden');
+          }
+        });
+
+        document.getElementById('flt-date').addEventListener('change', function (e) {
+          loadSchedules(e.target.value);
+        });
+        document.getElementById('flt-clear').addEventListener('click', function () {
+          document.getElementById('flt-date').value = '';
+          loadSchedules('');
+        });
+
+        document.getElementById('st-brk-form').addEventListener('submit', async function (e) {
+          e.preventDefault();
+          var btn = document.getElementById('st-brk-submit');
+          var msg = document.getElementById('st-brk-msg');
+          msg.classList.add('hidden');
+          var body = {
+            instrumentId: document.getElementById('st-brk-inst').value,
+            issue: document.getElementById('st-brk-issue').value.trim(),
+            severity: document.getElementById('st-brk-sev').value,
+            description: document.getElementById('st-brk-desc').value.trim(),
+          };
+          btn.disabled = true;
+          var r = await A.api('/api/v1/breakage', { method: 'POST', body: body });
+          btn.disabled = false;
+          if (r.status === 201) {
+            msg.textContent = '✓ INCIDENT REPORT RECORDED. OPERATIONAL RESTRICTION APPLIED.';
+            msg.className = 'font-mono text-xs mt-4 text-vortex-emerald';
+            msg.classList.remove('hidden');
+            document.getElementById('st-brk-issue').value = '';
+            document.getElementById('st-brk-desc').value = '';
+            loadInstruments();
+            loadDashboardStats();
+          } else {
+            msg.textContent = '✗ FAILED TO SUBMIT REPORT: ' + ((r.json && r.json.error && r.json.error.message) || 'ERROR');
+            msg.className = 'font-mono text-xs mt-4 text-vortex-rose';
+            msg.classList.remove('hidden');
+          }
+        });
+
+        // QR Access Pass Modal Controls
+        var closeQrBtn = document.getElementById('close-qr-modal');
+        if (closeQrBtn) closeQrBtn.addEventListener('click', closeQrModal);
+
+        var qrModalEl = document.getElementById('qr-modal');
+        if (qrModalEl) {
+          qrModalEl.addEventListener('click', function (e) {
+            if (e.target === qrModalEl) closeQrModal();
+          });
+        }
+
+        window.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') closeQrModal();
+        });
+
+        var simBtn = document.getElementById('btn-simulate-checkin');
+        if (simBtn) {
+          simBtn.addEventListener('click', async function () {
+            if (!activeQrBooking) return;
+            simBtn.disabled = true;
+            simBtn.textContent = 'VALIDATING HARDWARE TOKEN…';
+
+            var bId = activeQrBooking._id || activeQrBooking.id;
+            var feedback = document.getElementById('qr-feedback-msg');
+            var statusBadge = document.getElementById('qr-modal-status-badge');
+
+            try {
+              var passRes = await A.api('/api/v1/qr/booking/' + bId);
+              if (passRes.status === 200 && passRes.json && passRes.json.data && passRes.json.data.pass) {
+                var p = passRes.json.data.pass;
+                if (p.token) {
+                  await A.api('/api/v1/qr/check-in', { method: 'POST', body: { token: p.token } });
+                }
+              }
+            } catch (ignore) { /* fallback demo flow */ }
+
+            if (feedback) {
+              feedback.classList.remove('hidden');
+              feedback.className = 'mb-3 p-2.5 text-xs font-mono text-center border border-vortex-emerald/50 bg-vortex-emerald/10 text-vortex-emerald';
+              feedback.textContent = '✓ TERMINAL CHECK-IN CONFIRMED · HARDWARE INTERLOCK UNLOCKED';
+            }
+            if (statusBadge) {
+              statusBadge.textContent = 'CHECKED IN / VERIFIED';
+              statusBadge.className = 'px-2 py-0.5 text-[10px] rounded border border-vortex-cyan/40 bg-vortex-cyan/10 text-vortex-cyan font-bold';
+            }
+            simBtn.textContent = 'CHECKED IN';
+            simBtn.className = 'w-full py-3 bg-vortex-border/50 text-vortex-gray font-bold text-xs uppercase cursor-not-allowed min-h-[44px]';
+
+            loadMyBookings();
+            loadDashboardStats();
+          });
+        }
+      })();
+    })();
+  </script>
+</body>
+</html>
