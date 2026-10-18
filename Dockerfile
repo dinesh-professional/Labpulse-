@@ -21,6 +21,9 @@ EXPOSE 3000
 
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV JWT_ACCESS_SECRET=labpulse_access_secret_c1f4e892d9a3b47c89f01e23a45b67c8d9e0f123456789abcdef0123456789ab
+ENV JWT_REFRESH_SECRET=labpulse_refresh_secret_e7b8a912c34567890abcdef1234567890abcdef1234567890abcdef1234567890
+ENV DATA_BACKEND=mongodb
 
 # Container liveness healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
