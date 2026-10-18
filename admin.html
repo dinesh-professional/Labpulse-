@@ -2211,13 +2211,13 @@
           loadFaculty().catch(function (e) { console.warn('loadFaculty error', e); }),
           loadUserManagement().catch(function (e) { console.warn('loadUserManagement error', e); }),
           loadQualifications().catch(function (e) { console.warn('loadQualifications error', e); }),
-          loadAudit().catch(function (e) { console.warn('loadAudit error', e); }),
-          loadComplianceReport().catch(function (e) { console.warn('loadComplianceReport error', e); }),
+          loadAudit(),
+          loadComplianceReport(),
           loadAdminInstruments().catch(function (e) { console.warn('loadAdminInstruments error', e); }),
           loadAdminCalibrations().catch(function (e) { console.warn('loadAdminCalibrations error', e); }),
           loadAdminMaintenance().catch(function (e) { console.warn('loadAdminMaintenance error', e); }),
           loadAdminBreakage().catch(function (e) { console.warn('loadAdminBreakage error', e); }),
-          loadAnalytics().catch(function (e) { console.warn('loadAnalytics error', e); }),
+          loadAnalytics(),
         ]);
 
         function setBookingFilter(flt, btnId) {
