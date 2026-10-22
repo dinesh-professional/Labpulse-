@@ -41,6 +41,17 @@ class UserRepository {
     return User.findOne({ email: norm }).select('+passwordHash');
   }
 
+  async findWithOtpByEmail(email) {
+    const norm = String(email || '').trim().toLowerCase();
+    if (getActiveDataBackend() === 'supabase') {
+      const client = getSupabaseAdminClient();
+      const { data, error } = await client.from('profiles').select('*').eq('email', norm).single();
+      if (error || !data) return null;
+      return mapProfileToApp(data);
+    }
+    return User.findOne({ email: norm }).select('+otpHash +passwordHash');
+  }
+
   async findByResetToken(tokenHash) {
     if (getActiveDataBackend() === 'supabase') {
       // In Supabase Auth, reset flows use Supabase Auth magic links/recovery tokens

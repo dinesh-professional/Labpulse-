@@ -8,7 +8,7 @@
     "dev": "node server.js",
     "test": "node scripts/smoke-auth.js && node scripts/smoke-rbac.js && node scripts/smoke-scheduling.js && node scripts/smoke-booking.js && node scripts/smoke-calibration.js && node scripts/smoke-maintenance.js && node scripts/smoke-breakage.js && node scripts/smoke-notify.js && node scripts/smoke-qr.js && node scripts/security-audit.js && node scripts/check-frontend.js && node scripts/check-auth-ui.js && node scripts/verify-module-04.js && node scripts/verify-database-schema.js && node scripts/verify-module-05.js && node scripts/verify-module-06.js && node scripts/verify-module-07.js && node scripts/verify-module-08.js && node scripts/verify-module-09.js && node scripts/verify-module-10.js && node scripts/verify-module-11.js",
     "build": "node scripts/build-verify.js",
-    "test:unit": "node tests/unit/time-and-scheduling.test.js && node tests/unit/tokens-and-security.test.js && node tests/unit/lifecycle-and-state.test.js && node tests/unit/analytics-helpers.test.js",
+    "test:unit": "node tests/unit/time-and-scheduling.test.js && node tests/unit/tokens-and-security.test.js && node tests/unit/lifecycle-and-state.test.js && node tests/unit/analytics-helpers.test.js && node tests/unit/otp-auth.test.js",
     "test:integration": "node tests/integration/api-contracts.test.js && node tests/integration/rbac-and-scoping.test.js",
     "test:security": "node scripts/security-audit.js && node tests/security/security-regression.test.js",
     "test:frontend": "node scripts/check-frontend.js && node scripts/check-auth-ui.js && node tests/frontend/accessibility-and-dom.test.js",

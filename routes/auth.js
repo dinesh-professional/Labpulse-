@@ -9,6 +9,7 @@
  * Backed by userRepository (dual Supabase PostgreSQL / MongoDB support).
  */
 const express = require('express');
+const crypto = require('crypto');
 const { rateLimit } = require('express-rate-limit');
 const { userRepository } = require('../repositories');
 const { dbState } = require('../config/db');
@@ -295,9 +296,14 @@ router.post('/signup', sensitiveLimiter, requireDB, async (req, res, next) => {
     // hash password
     const hashed = await hashPassword(password);
 
-    // create activation token (random, secure, time-limited, single-use)
+    // create activation token and 6-digit numeric OTP
     const { token, tokenHash } = issueOpaqueToken();
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+
+    // 6-digit numeric OTP (10-minute expiry)
+    const otp = String(crypto.randomInt(100000, 1000000));
+    const otpHash = hashOpaqueToken(otp);
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     const creatorId = req.user ? (req.user._id || req.user.id) : undefined;
     const user = await userRepository.create({
@@ -313,26 +319,152 @@ router.post('/signup', sensitiveLimiter, requireDB, async (req, res, next) => {
       emailVerified: false,
       activationTokenHash: tokenHash,
       activationExpires: expires,
+      otpHash,
+      otpExpires,
+      otpAttempts: 0,
       createdBy: creatorId,
     });
 
     const targetUserId = user._id || user.id;
 
-    // send activation email (reuse existing notification/SMTP infrastructure)
+    // Send OTP email (using Gmail SMTP)
     await notifyUser({
       userId: targetUserId,
-      type: 'account-signup',
-      title: 'LabPulse account activation',
-      message: `Welcome, ${name}. Please check your email to activate your account.`,
+      type: 'account-otp',
+      title: 'LabPulse verification code',
+      message: `Your verification code is ${otp}. Valid for 10 minutes.`,
       email: {
         to: user.email,
-        subject: 'LabPulse account activation',
-        template: 'account-activation',
-        data: { name, activationToken: token, expiresInHours: 24 },
+        subject: 'LabPulse — Your 6-Digit Verification Code',
+        template: 'account-otp',
+        data: { name, otp, expiresInMinutes: 10, activationToken: token },
       },
     });
 
-    return res.status(201).json({ success: true, message: 'Account created. Please check your email to activate.' });
+    return res.status(201).json({
+      success: true,
+      requiresOtp: true,
+      email: normalizedEmail,
+      message: 'Account created. Please enter the verification code sent to your email.',
+    });
+  } catch (err) { return next(err); }
+});
+
+/* ---------------- VERIFY OTP (6-digit email verification) ---------------- */
+router.post('/verify-otp', sensitiveLimiter, requireDB, async (req, res, next) => {
+  try {
+    const bad = allowOnly(req.body, ['email', 'otp']);
+    if (bad) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: bad } });
+
+    const email = asString(req.body.email).trim().toLowerCase();
+    const otp = asString(req.body.otp).trim();
+
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Email and 6-digit OTP are required.' } });
+    }
+    if (!/^\d{6}$/.test(otp)) {
+      return res.status(400).json({ success: false, error: { code: 'INVALID_OTP_FORMAT', message: 'Verification code must be 6 digits.' } });
+    }
+
+    const user = await userRepository.findWithOtpByEmail(email);
+    if (!user) {
+      return res.status(400).json({ success: false, error: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or verification code.' } });
+    }
+
+    if (user.isActive && user.emailVerified) {
+      return res.status(400).json({ success: false, error: { code: 'ALREADY_ACTIVE', message: 'Account is already verified. Please sign in.' } });
+    }
+
+    if ((user.otpAttempts || 0) >= 5) {
+      return res.status(429).json({ success: false, error: { code: 'TOO_MANY_ATTEMPTS', message: 'Too many incorrect attempts. Please request a new code.' } });
+    }
+
+    if (!user.otpExpires || new Date() > new Date(user.otpExpires)) {
+      return res.status(400).json({ success: false, error: { code: 'OTP_EXPIRED', message: 'Verification code has expired. Please request a new code.' } });
+    }
+
+    const incomingHash = hashOpaqueToken(otp);
+    if (incomingHash !== user.otpHash) {
+      const nextAttempts = (user.otpAttempts || 0) + 1;
+      await userRepository.updateById(user.id || user._id, { otpAttempts: nextAttempts });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_OTP', message: `Invalid verification code. (${5 - nextAttempts} attempts remaining)` },
+      });
+    }
+
+    // Valid OTP: activate user
+    const userId = user.id || user._id;
+    await userRepository.updateById(userId, {
+      isActive: true,
+      emailVerified: true,
+      otpHash: null,
+      otpExpires: null,
+      otpAttempts: 0,
+      activationTokenHash: null,
+      activationExpires: null,
+    });
+
+    // Auto-login: issue token pair and set cookie
+    const secrets = getAuthSecrets();
+    const updatedUser = await userRepository.findById(userId);
+    const pair = issuePair(updatedUser || user, secrets);
+    setRefreshCookie(res, pair.refreshToken, secrets.isProd);
+
+    return res.json({
+      success: true,
+      data: { user: formatSafeUser(updatedUser || user), accessToken: pair.accessToken },
+      message: 'Account verified successfully. Welcome to LabPulse!',
+    });
+  } catch (err) { return next(err); }
+});
+
+/* ---------------- RESEND OTP (request a new 6-digit verification code) ---------------- */
+router.post('/resend-otp', sensitiveLimiter, requireDB, async (req, res, next) => {
+  try {
+    const bad = allowOnly(req.body, ['email']);
+    if (bad) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: bad } });
+
+    const email = asString(req.body.email).trim().toLowerCase();
+    if (!email) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Email is required.' } });
+    }
+
+    const user = await userRepository.findByEmail(email);
+    if (!user) {
+      // Prevent email enumeration: return generic success
+      return res.json({ success: true, message: 'If an unactivated account exists, a new verification code has been sent.' });
+    }
+
+    if (user.isActive && user.emailVerified) {
+      return res.status(400).json({ success: false, error: { code: 'ALREADY_ACTIVE', message: 'Account is already verified. Please sign in.' } });
+    }
+
+    const otp = String(crypto.randomInt(100000, 1000000));
+    const otpHash = hashOpaqueToken(otp);
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    const userId = user.id || user._id;
+    await userRepository.updateById(userId, {
+      otpHash,
+      otpExpires: expires,
+      otpAttempts: 0,
+    });
+
+    await notifyUser({
+      userId,
+      type: 'account-otp',
+      title: 'LabPulse verification code',
+      message: `Your new verification code is ${otp}. Valid for 10 minutes.`,
+      email: {
+        to: user.email,
+        subject: 'LabPulse — Your 6-Digit Verification Code',
+        template: 'account-otp',
+        data: { name: user.name, otp, expiresInMinutes: 10 },
+      },
+    });
+
+    return res.json({ success: true, message: 'A new verification code has been sent to your email.' });
   } catch (err) { return next(err); }
 });
 

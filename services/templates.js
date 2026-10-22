@@ -12,6 +12,7 @@ const TITLES = {
   'faculty-invitation': 'Faculty account invitation',
   'account-activation': 'LabPulse account activation',
   'account-signup': 'LabPulse account activation',
+  'account-otp': 'Verification Code (OTP)',
   'password-reset': 'Password reset',
   'password-changed': 'Password changed',
   'schedule-created': 'Schedule confirmed',
@@ -71,6 +72,14 @@ function renderTemplate(template, data) {
     .map(([k, v]) => ({ label: labelOf(k), value: String(v) }));
   const htmlRows = rows.map((r) => `<tr><td style="padding:6px 12px;color:#8A99AD;">${esc(r.label)}</td><td style="padding:6px 12px;color:#F8FAFC;">${esc(r.value)}</td></tr>`).join('');
 
+  const otpHtml = data && data.otp
+    ? `<div style="margin:24px 0;padding:20px;background:#121722;border:1px solid #00F5D4;border-radius:6px;text-align:center;">` +
+      `<p style="margin:0 0 8px;font-size:12px;color:#8A99AD;text-transform:uppercase;letter-spacing:1px;">Your 6-Digit Verification Code</p>` +
+      `<div style="font-size:36px;font-weight:bold;letter-spacing:8px;color:#00F5D4;font-family:monospace;margin:8px 0;">${esc(data.otp)}</div>` +
+      `<p style="margin:8px 0 0;font-size:11px;color:#8A99AD;">This code expires in ${esc(data.expiresInMinutes || 10)} minutes. Do not share it with anyone.</p>` +
+      `</div>`
+    : '';
+
   const actionButtonHtml = actionUrl
     ? `<div style="margin:24px 0 20px;">` +
       `<a href="${esc(actionUrl)}" style="background-color:#00F5D4;color:#0A0D12;padding:12px 24px;text-decoration:none;font-weight:bold;font-size:13px;letter-spacing:0.5px;text-transform:uppercase;display:inline-block;border-radius:4px;">` +
@@ -83,6 +92,7 @@ function renderTemplate(template, data) {
 
   const html = `<div style="font-family:sans-serif;background:#0A0D12;color:#F8FAFC;padding:24px;">` +
     `<h2 style="margin:0 0 4px;">LabPulse</h2><p style="margin:0 0 16px;color:#00F5D4;">${esc(title)}</p>` +
+    (otpHtml || '') +
     (actionButtonHtml || '') +
     `<table style="border-collapse:collapse;border:1px solid #222A3A;">${htmlRows}</table></div>`;
   const text = [

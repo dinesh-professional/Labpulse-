@@ -148,8 +148,45 @@
         Account created successfully.
         <p class="mt-2">Please check your email to activate your account.</p>
         <button id="back-to-login" class="mt-3 w-full py-3 bg-vortex-cyan text-vortex-black font-bold text-sm uppercase hover:bg-white transition-colors min-h-[44px]">Back to Login</button>
+      </div>
+
     </div>
 
+    <!-- OTP Verification Card -->
+    <div id="otp-card" class="hidden w-full max-w-md glass-card p-8 font-mono text-xs">
+      <div class="flex items-center space-x-2 text-vortex-cyan mb-2">
+        <span class="w-2.5 h-2.5 bg-vortex-cyan inline-block animate-pulse"></span>
+        <span class="text-xs uppercase tracking-wider font-bold">Email Verification</span>
+      </div>
+      <h1 class="text-2xl font-display font-black uppercase tracking-tight mb-2 text-vortex-white">Verify Your Account</h1>
+      <p class="text-vortex-gray mb-6 leading-relaxed">
+        We sent a 6-digit verification code to <span id="otp-sent-email" class="text-vortex-cyan font-bold break-all"></span>. Enter it below to activate your account.
+      </p>
+
+      <div id="otp-error" class="hidden mb-6 p-4 border border-vortex-rose/50 bg-vortex-rose/10 text-vortex-rose rounded" role="alert"></div>
+      <div id="otp-success" class="hidden mb-6 p-4 border border-emerald-500/50 bg-emerald-500/10 text-emerald-400 rounded" role="status"></div>
+
+      <form id="otp-form" class="space-y-6" novalidate>
+        <div>
+          <label for="otp-code" class="block text-vortex-gray uppercase mb-2">6-Digit Code *</label>
+          <input type="text" id="otp-code" name="otp" required maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code" placeholder="123456"
+            class="w-full glass-input py-4 px-4 text-center text-2xl font-bold tracking-[0.5em] text-vortex-cyan focus:outline-none focus:border-vortex-cyan transition-colors">
+          <p id="otp-code-error" class="hidden text-vortex-rose text-[11px] mt-2">Enter the 6-digit numeric code.</p>
+        </div>
+
+        <button type="submit" id="otp-submit" class="w-full py-4 bg-vortex-cyan text-vortex-black font-bold text-sm uppercase hover:bg-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]">
+          VERIFY & CONTINUE
+        </button>
+      </form>
+
+      <div class="mt-6 pt-6 border-t border-vortex-border flex flex-col sm:flex-row justify-between items-center gap-3">
+        <button type="button" id="otp-resend-btn" disabled class="text-vortex-gray hover:text-vortex-white disabled:opacity-50 disabled:cursor-not-allowed uppercase transition-colors">
+          Resend code in <span id="otp-timer">60</span>s
+        </button>
+        <button type="button" id="otp-change-email" class="text-vortex-cyan hover:text-white uppercase transition-colors">
+          ← Back to Signup
+        </button>
+      </div>
     </div>
   </main>
 
@@ -178,6 +215,22 @@
       var confirmError = document.getElementById('signup-confirm-error');
       var toggleBtn = document.getElementById('toggle-password');
 
+      // OTP elements
+      var otpCard = document.getElementById('otp-card');
+      var otpForm = document.getElementById('otp-form');
+      var otpCodeInput = document.getElementById('otp-code');
+      var otpSubmitBtn = document.getElementById('otp-submit');
+      var otpSentEmail = document.getElementById('otp-sent-email');
+      var otpError = document.getElementById('otp-error');
+      var otpSuccess = document.getElementById('otp-success');
+      var otpCodeError = document.getElementById('otp-code-error');
+      var otpResendBtn = document.getElementById('otp-resend-btn');
+      var otpTimerSpan = document.getElementById('otp-timer');
+      var otpChangeEmailBtn = document.getElementById('otp-change-email');
+
+      var currentRegisteredEmail = '';
+      var timerInterval = null;
+
       function showError(field, errorElem, msg) {
         if (errorElem) {
           errorElem.textContent = msg;
@@ -191,6 +244,32 @@
           errorElem.textContent = '';
         }
         if (field) field.classList.remove('border-vortex-rose');
+      }
+
+      function showOtpError(msg) {
+        otpError.textContent = msg;
+        otpError.classList.remove('hidden');
+      }
+      function clearOtpError() {
+        otpError.classList.add('hidden');
+        otpError.textContent = '';
+      }
+
+      function startResendTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        var secondsLeft = 60;
+        otpResendBtn.disabled = true;
+        otpResendBtn.innerHTML = 'Resend code in <span id="otp-timer">' + secondsLeft + '</span>s';
+        timerInterval = setInterval(function () {
+          secondsLeft -= 1;
+          var span = document.getElementById('otp-timer');
+          if (span) span.textContent = secondsLeft;
+          if (secondsLeft <= 0) {
+            clearInterval(timerInterval);
+            otpResendBtn.disabled = false;
+            otpResendBtn.textContent = 'RESEND CODE';
+          }
+        }, 1000);
       }
 
       toggleBtn.addEventListener('click', function () {
@@ -233,13 +312,11 @@
 
         var valid = true;
 
-        // name
         if (!name) {
           showError(nameInput, nameError, 'Full name is required.');
           valid = false;
         }
 
-        // email format
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
           showError(emailInput, emailError, 'Enter a valid email address.');
           valid = false;
@@ -247,7 +324,6 @@
           clearError(emailInput, emailError);
         }
 
-        // password match
         if (!password) {
           showError(passwordInput, passwordError, 'Password is required.');
           valid = false;
@@ -278,12 +354,22 @@
           };
           var result = await window.LabPulseAuth.signup(payload);
           if (result.ok) {
-            // Show success, hide form
+            currentRegisteredEmail = email;
+            if (result.requiresOtp || (result.json && result.json.requiresOtp)) {
+              card.classList.add('hidden');
+              otpCard.classList.remove('hidden');
+              otpSentEmail.textContent = email;
+              otpCodeInput.value = '';
+              clearOtpError();
+              startResendTimer();
+              otpCodeInput.focus();
+              return;
+            }
+            // Fallback for tests/legacy
             card.classList.add('hidden');
             successDiv.classList.remove('hidden');
             return;
           }
-          // handle known error codes
           var errMsg = result.error && result.error.message;
           if (result.status === 409) {
             showError(emailInput, emailError, errMsg || 'Email already registered.');
@@ -301,6 +387,74 @@
         } finally {
           setLoading(false);
         }
+      });
+
+      // OTP Verification Submission
+      otpForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        if (otpSubmitBtn.disabled) return;
+        clearOtpError();
+        var code = otpCodeInput.value.trim();
+        if (!/^\d{6}$/.test(code)) {
+          showOtpError('Please enter a valid 6-digit verification code.');
+          otpCodeError.classList.remove('hidden');
+          return;
+        }
+        otpCodeError.classList.add('hidden');
+
+        otpSubmitBtn.disabled = true;
+        otpSubmitBtn.textContent = 'VERIFYING…';
+
+        try {
+          var res = await window.LabPulseAuth.verifyOtp(currentRegisteredEmail, code);
+          if (res.ok) {
+            clearOtpError();
+            otpSuccess.textContent = 'Verification successful! Logging you in…';
+            otpSuccess.classList.remove('hidden');
+            otpForm.classList.add('hidden');
+            setTimeout(function () {
+              window.LabPulseAuth.goToDashboard('student');
+            }, 1200);
+            return;
+          }
+          var msg = (res.error && res.error.message) || 'Verification failed. Try again.';
+          showOtpError(msg);
+        } catch (err) {
+          showOtpError('Network error. Check connection and try again.');
+        } finally {
+          otpSubmitBtn.disabled = false;
+          otpSubmitBtn.textContent = 'VERIFY & CONTINUE';
+        }
+      });
+
+      // Resend OTP
+      otpResendBtn.addEventListener('click', async function () {
+        if (otpResendBtn.disabled) return;
+        clearOtpError();
+        otpResendBtn.disabled = true;
+        try {
+          var res = await window.LabPulseAuth.resendOtp(currentRegisteredEmail);
+          if (res.ok) {
+            otpSuccess.textContent = 'A new 6-digit verification code has been sent to your email.';
+            otpSuccess.classList.remove('hidden');
+            setTimeout(function () { otpSuccess.classList.add('hidden'); }, 4000);
+            startResendTimer();
+          } else {
+            showOtpError((res.error && res.error.message) || 'Failed to resend code.');
+            otpResendBtn.disabled = false;
+          }
+        } catch (err) {
+          showOtpError('Network error while resending verification code.');
+          otpResendBtn.disabled = false;
+        }
+      });
+
+      // Change Email / Back to Signup
+      otpChangeEmailBtn.addEventListener('click', function () {
+        otpCard.classList.add('hidden');
+        card.classList.remove('hidden');
+        if (timerInterval) clearInterval(timerInterval);
+        emailInput.focus();
       });
 
       // back to login

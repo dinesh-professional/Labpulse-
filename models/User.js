@@ -25,6 +25,9 @@ const userSchema = new mongoose.Schema(
     passwordResetExpires: { type: Date },
     activationTokenHash: { type: String, select: false },
     activationExpires: { type: Date },
+    otpHash: { type: String, select: false },
+    otpExpires: { type: Date },
+    otpAttempts: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
@@ -39,6 +42,7 @@ userSchema.methods.toSafeJSON = function () {
   delete o.passwordHash;
   delete o.passwordResetTokenHash;
   delete o.activationTokenHash;
+  delete o.otpHash;
   return o;
 };
 

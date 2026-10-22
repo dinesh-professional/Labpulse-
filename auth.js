@@ -163,12 +163,48 @@
     }
     var r = await request('/api/v1/auth/signup', { method: 'POST', body: body });
     if (r.status >= 200 && r.status < 300) {
-      return { ok: true, status: r.status, data: r.json && r.json.data, message: r.json && r.json.message };
+      return {
+        ok: true,
+        status: r.status,
+        data: r.json && r.json.data,
+        message: r.json && r.json.message,
+        requiresOtp: !!(r.json && r.json.requiresOtp),
+        email: r.json && r.json.email,
+        json: r.json,
+      };
     }
     return {
       ok: false,
       status: r.status,
       error: (r.json && r.json.error) || { message: 'Sign-up failed.' },
+    };
+  }
+
+  async function verifyOtp(email, otp) {
+    var r = await request('/api/v1/auth/verify-otp', { method: 'POST', body: { email: email, otp: otp } });
+    if (r.status >= 200 && r.status < 300) {
+      if (r.json && r.json.data && r.json.data.accessToken) {
+        accessToken = r.json.data.accessToken;
+        currentUser = r.json.data.user || null;
+      }
+      return { ok: true, status: r.status, user: currentUser, message: r.json && r.json.message };
+    }
+    return {
+      ok: false,
+      status: r.status,
+      error: (r.json && r.json.error) || { message: 'OTP verification failed.' },
+    };
+  }
+
+  async function resendOtp(email) {
+    var r = await request('/api/v1/auth/resend-otp', { method: 'POST', body: { email: email } });
+    if (r.status >= 200 && r.status < 300) {
+      return { ok: true, status: r.status, message: r.json && r.json.message };
+    }
+    return {
+      ok: false,
+      status: r.status,
+      error: (r.json && r.json.error) || { message: 'Resending OTP failed.' },
     };
   }
 
@@ -246,6 +282,8 @@
     forgotPassword: forgotPassword,
     resetPassword: resetPassword,
     signup: signup,
+    verifyOtp: verifyOtp,
+    resendOtp: resendOtp,
     activate: activate,
     initSession: initSession,
     guard: guard,
