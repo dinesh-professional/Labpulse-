@@ -61,9 +61,23 @@ function labelOf(key) {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
 }
 
+function resolveBaseUrl(data) {
+  const custom = data && data.baseUrl;
+  if (custom && !custom.includes('localhost') && !custom.includes('127.0.0.1')) {
+    return custom.replace(/\/$/, '');
+  }
+  if (process.env.APP_URL && !process.env.APP_URL.includes('localhost') && !process.env.APP_URL.includes('127.0.0.1')) {
+    return process.env.APP_URL.replace(/\/$/, '');
+  }
+  if (process.env.RENDER_EXTERNAL_URL) {
+    return process.env.RENDER_EXTERNAL_URL.replace(/\/$/, '');
+  }
+  return (custom || process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, '');
+}
+
 function renderTemplate(template, data) {
   const title = TITLES[template] || 'LabPulse notification';
-  const baseUrl = (data && data.baseUrl) || process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000';
+  const baseUrl = resolveBaseUrl(data);
   const token = data && (data.activationToken || data.resetToken);
   const actionUrl = token ? `${baseUrl}/reset-password.html?token=${encodeURIComponent(token)}` : '';
 

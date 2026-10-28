@@ -1879,8 +1879,9 @@
               inviteBtn.disabled = true;
               var r = await A.api('/api/v1/admin/users/' + uid + '/resend-invite', { method: 'POST' });
               inviteBtn.disabled = false;
-              if (r.status === 200 && r.json && r.json.data && r.json.data.activationLink) {
-                var lk = r.json.data.activationLink;
+              if (r.status === 200 && r.json && r.json.data) {
+                var token = r.json.data.activationToken;
+                var lk = window.location.origin + '/reset-password.html?token=' + encodeURIComponent(token || '');
                 prompt('Activation link for ' + (u.name || u.email) + ' (Copy below):', lk);
               } else {
                 D.notify('Failed: ' + ((r.json && r.json.error && r.json.error.message) || 'Error generating link'), true);
@@ -2506,8 +2507,7 @@
           userSubmit.disabled = false;
           if (ur.status === 201) {
             var token = ur.json && ur.json.data && ur.json.data.activationToken;
-            var link = (ur.json && ur.json.data && ur.json.data.activationLink) ||
-              (window.location.origin + '/reset-password.html?token=' + encodeURIComponent(token || ''));
+            var link = window.location.origin + '/reset-password.html?token=' + encodeURIComponent(token || '');
             var emailNote = (ur.json && ur.json.emailSent) ? '✓ Activation email dispatched' : '⚠ Email delivery pending/blocked';
             userMsg.innerHTML = '<div class="p-3 bg-vortex-cyan/10 border border-vortex-cyan/40 text-vortex-white rounded mb-2">' +
               '<div class="text-vortex-cyan font-bold uppercase mb-1 flex items-center justify-between">' +

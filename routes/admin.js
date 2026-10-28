@@ -150,8 +150,21 @@ router.post('/faculty', async (req, res, next) => {
 
     const targetUserId = user._id || user.id;
 
-    const origin = req.get('origin') || `${req.protocol}://${req.get('host')}`;
-    const baseUrl = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || origin).replace(/\/$/, '');
+function resolveAppUrl(req) {
+  const origin = req ? (req.get('origin') || `${req.protocol}://${req.get('host')}`) : '';
+  if (origin && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+    return origin.replace(/\/$/, '');
+  }
+  if (process.env.APP_URL && !process.env.APP_URL.includes('localhost') && !process.env.APP_URL.includes('127.0.0.1')) {
+    return process.env.APP_URL.replace(/\/$/, '');
+  }
+  if (process.env.RENDER_EXTERNAL_URL) {
+    return process.env.RENDER_EXTERNAL_URL.replace(/\/$/, '');
+  }
+  return (origin || process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, '');
+}
+
+    const baseUrl = resolveAppUrl(req);
     const activationLink = `${baseUrl}/reset-password.html?token=${encodeURIComponent(token)}`;
 
     // Delivery failure must not roll back the invite; status is recorded on the notification.
