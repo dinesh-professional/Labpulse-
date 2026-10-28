@@ -150,18 +150,35 @@ router.post('/faculty', async (req, res, next) => {
 
     const targetUserId = user._id || user.id;
 
+    const origin = req.get('origin') || `${req.protocol}://${req.get('host')}`;
+    const baseUrl = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || origin).replace(/\/$/, '');
+    const activationLink = `${baseUrl}/reset-password.html?token=${encodeURIComponent(token)}`;
+
     // Delivery failure must not roll back the invite; status is recorded on the notification.
-    await notifyUser({
+    const notifyOutcome = await notifyUser({
       userId: targetUserId, type: 'faculty-invitation', title: 'LabPulse faculty account activation',
       message: `Faculty account created for ${user.email}. Activation link expires in 72 hours.`,
       email: {
         to: user.email, subject: 'LabPulse faculty account activation', template: 'faculty-invitation',
-        data: { name: user.name, activationToken: token, expiresInHours: 72 },
+        data: { name: user.name, activationToken: token, expiresInHours: 72, baseUrl },
       },
     });
 
+    if (process.env.NODE_ENV !== 'test') {
+      if (notifyOutcome && notifyOutcome.emailSent) {
+        console.log(`[admin:faculty] Invitation email delivered to ${user.email}`);
+      } else {
+        console.warn(`[admin:faculty] Warning: Email delivery to ${user.email} failed. Activation link: ${activationLink}`);
+      }
+    }
+
     await logAudit({ userId: currentAdminId, action: 'FACULTY_CREATED', resource: 'User', resourceId: targetUserId, details: { email }, req });
-    return res.status(201).json({ success: true, data: { user: formatSafeUser(user), activationToken: token }, message: 'Faculty invited. Activation email sent.' });
+    return res.status(201).json({
+      success: true,
+      data: { user: formatSafeUser(user), activationToken: token, activationLink },
+      emailSent: !!(notifyOutcome && notifyOutcome.emailSent),
+      message: 'Faculty invited. Activation email sent.',
+    });
   } catch (err) {
     if (isDup(err)) return res.status(409).json({ success: false, error: { code: 'EMAIL_TAKEN', message: dupField(err) } });
     if (err && err.name === 'ValidationError') {

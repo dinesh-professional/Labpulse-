@@ -36,6 +36,18 @@ function getTransporter() {
   if (!c.host) throw new Error('SMTP_HOST is not set.');
   if (cachedTransporter) return cachedTransporter;
 
+  const isGmail = c.host === 'smtp.gmail.com' || (c.user && c.user.toLowerCase().endsWith('@gmail.com'));
+  if (isGmail) {
+    cachedTransporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: c.user ? { user: c.user, pass: c.pass } : undefined,
+      connectionTimeout: 25000,
+      greetingTimeout: 25000,
+      socketTimeout: 30000,
+    });
+    return cachedTransporter;
+  }
+
   cachedTransporter = nodemailer.createTransport({
     host: c.host,
     port: c.port,

@@ -1869,6 +1869,26 @@
           });
           actTd.appendChild(labBtn);
 
+          // If user is inactive, show INVITE LINK button
+          if (u.isActive === false) {
+            var inviteBtn = document.createElement('button');
+            inviteBtn.className = 'px-2 py-1 border border-vortex-amber/50 text-vortex-amber text-[10px] hover:bg-vortex-amber/10';
+            inviteBtn.textContent = 'INVITE LINK';
+            inviteBtn.title = 'Get or re-issue activation link';
+            inviteBtn.addEventListener('click', async function () {
+              inviteBtn.disabled = true;
+              var r = await A.api('/api/v1/admin/users/' + uid + '/resend-invite', { method: 'POST' });
+              inviteBtn.disabled = false;
+              if (r.status === 200 && r.json && r.json.data && r.json.data.activationLink) {
+                var lk = r.json.data.activationLink;
+                prompt('Activation link for ' + (u.name || u.email) + ' (Copy below):', lk);
+              } else {
+                D.notify('Failed: ' + ((r.json && r.json.error && r.json.error.message) || 'Error generating link'), true);
+              }
+            });
+            actTd.appendChild(inviteBtn);
+          }
+
           // Role change button
           var roleBtn = document.createElement('button');
           roleBtn.className = 'px-2 py-1 border border-vortex-violet/50 text-vortex-violet text-[10px] hover:bg-vortex-violet/10';
@@ -2485,8 +2505,19 @@
           var ur = await A.api('/api/v1/admin/users/invite', { method: 'POST', body: body });
           userSubmit.disabled = false;
           if (ur.status === 201) {
-            userMsg.textContent = 'USER PROVISIONED & INVITATION RECORD CREATED.';
-            userMsg.className = 'font-mono text-xs mb-4 text-vortex-emerald';
+            var token = ur.json && ur.json.data && ur.json.data.activationToken;
+            var link = (ur.json && ur.json.data && ur.json.data.activationLink) ||
+              (window.location.origin + '/reset-password.html?token=' + encodeURIComponent(token || ''));
+            var emailNote = (ur.json && ur.json.emailSent) ? '✓ Activation email dispatched' : '⚠ Email delivery pending/blocked';
+            userMsg.innerHTML = '<div class="p-3 bg-vortex-cyan/10 border border-vortex-cyan/40 text-vortex-white rounded mb-2">' +
+              '<div class="text-vortex-cyan font-bold uppercase mb-1 flex items-center justify-between">' +
+              '<span>Faculty / User Invited</span><span class="text-[10px] text-vortex-gray">' + emailNote + '</span></div>' +
+              '<div class="text-[11px] text-vortex-gray mb-2">Direct Activation Link (valid for 72 hours):</div>' +
+              '<div class="flex items-center gap-2">' +
+              '<input type="text" readonly value="' + link + '" class="w-full glass-input text-vortex-cyan text-[11px] py-2 px-3 select-all focus:outline-none">' +
+              '<button type="button" class="px-4 py-2 bg-vortex-cyan text-vortex-black font-bold text-[10px] uppercase hover:bg-white whitespace-nowrap cursor-pointer" onclick="navigator.clipboard.writeText(\'' + link + '\'); this.textContent=\'COPIED!\';">Copy Link</button>' +
+              '</div></div>';
+            userMsg.className = 'font-mono text-xs mb-4';
             userMsg.classList.remove('hidden');
             userForm.reset();
             loadUserManagement();

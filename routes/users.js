@@ -285,8 +285,12 @@ router.post('/invite', async (req, res, next) => {
     const user = await userRepository.create(userPayload);
     const targetUserId = user._id || user.id;
 
+    const origin = req.get('origin') || `${req.protocol}://${req.get('host')}`;
+    const baseUrl = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || origin).replace(/\/$/, '');
+    const activationLink = `${baseUrl}/reset-password.html?token=${encodeURIComponent(token)}`;
+
     // Send invitation notification & email
-    await notifyUser({
+    const notifyOutcome = await notifyUser({
       userId: targetUserId,
       type: `${role}-invitation`,
       title: `LabPulse ${role} account activation`,
@@ -295,9 +299,17 @@ router.post('/invite', async (req, res, next) => {
         to: user.email,
         subject: `LabPulse ${role} account activation`,
         template: `${role}-invitation`,
-        data: { name: user.name, activationToken: token, expiresInHours: 72 },
+        data: { name: user.name, activationToken: token, expiresInHours: 72, baseUrl },
       },
     });
+
+    if (process.env.NODE_ENV !== 'test') {
+      if (notifyOutcome && notifyOutcome.emailSent) {
+        console.log(`[users:invite] Invitation email delivered to ${user.email}`);
+      } else {
+        console.warn(`[users:invite] Warning: Email delivery to ${user.email} failed (${(notifyOutcome && notifyOutcome.emailError) || 'undelivered'}). Activation link: ${activationLink}`);
+      }
+    }
 
     await logAudit({
       userId: currentAdminId,
@@ -310,8 +322,9 @@ router.post('/invite', async (req, res, next) => {
 
     return res.status(201).json({
       success: true,
-      data: { user: formatSafeUser(user), activationToken: token },
-      message: `${role.charAt(0).toUpperCase() + role.slice(1)} invited. Activation token issued.`,
+      data: { user: formatSafeUser(user), activationToken: token, activationLink },
+      emailSent: !!(notifyOutcome && notifyOutcome.emailSent),
+      message: `${role.charAt(0).toUpperCase() + role.slice(1)} invited. ${notifyOutcome && notifyOutcome.emailSent ? 'Activation email delivered.' : 'Activation link generated.'}`,
     });
   } catch (err) {
     if (err && (err.code === 11000 || err.code === '23505' || err.code === 'DUPLICATE_RESOURCE')) {
@@ -322,6 +335,68 @@ router.post('/invite', async (req, res, next) => {
     }
     return next(err);
   }
+});
+
+/* ============================================================================
+   2b. POST /:id/resend-invite — Re-issue and Resend Activation Link
+   ============================================================================ */
+router.post('/:id/resend-invite', async (req, res, next) => {
+  try {
+    if (!isValidId(req.params.id)) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid id.' } });
+    }
+    const user = await userRepository.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found.' } });
+    }
+    if (user.isActive && user.emailVerified) {
+      return res.status(400).json({ success: false, error: { code: 'ALREADY_ACTIVE', message: 'User account is already active and verified.' } });
+    }
+
+    const { token, tokenHash } = issueOpaqueToken();
+    const expires = new Date(Date.now() + INVITE_TTL_MS);
+
+    const targetUserId = user.id || user._id;
+    await userRepository.updateById(targetUserId, {
+      activationTokenHash: tokenHash,
+      activationExpires: expires,
+    });
+
+    const origin = req.get('origin') || `${req.protocol}://${req.get('host')}`;
+    const baseUrl = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || origin).replace(/\/$/, '');
+    const activationLink = `${baseUrl}/reset-password.html?token=${encodeURIComponent(token)}`;
+    const role = user.role || 'faculty';
+
+    const notifyOutcome = await notifyUser({
+      userId: targetUserId,
+      type: `${role}-invitation`,
+      title: `LabPulse ${role} account activation`,
+      message: `New activation link generated for ${user.email}. Link expires in 72 hours.`,
+      email: {
+        to: user.email,
+        subject: `LabPulse ${role} account activation`,
+        template: `${role}-invitation`,
+        data: { name: user.name, activationToken: token, expiresInHours: 72, baseUrl },
+      },
+    });
+
+    const currentAdminId = req.user._id || req.user.id;
+    await logAudit({
+      userId: currentAdminId,
+      action: `${role.toUpperCase()}_INVITE_RESENT`,
+      resource: 'User',
+      resourceId: targetUserId,
+      details: { email: user.email },
+      req,
+    });
+
+    return res.json({
+      success: true,
+      data: { activationToken: token, activationLink },
+      emailSent: !!(notifyOutcome && notifyOutcome.emailSent),
+      message: `Invitation link re-issued. ${notifyOutcome && notifyOutcome.emailSent ? 'Email delivered.' : 'Activation link available below.'}`,
+    });
+  } catch (err) { return next(err); }
 });
 
 /* ============================================================================

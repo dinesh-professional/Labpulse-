@@ -63,7 +63,7 @@ function labelOf(key) {
 
 function renderTemplate(template, data) {
   const title = TITLES[template] || 'LabPulse notification';
-  const baseUrl = process.env.APP_URL || 'http://localhost:3000';
+  const baseUrl = (data && data.baseUrl) || process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000';
   const token = data && (data.activationToken || data.resetToken);
   const actionUrl = token ? `${baseUrl}/reset-password.html?token=${encodeURIComponent(token)}` : '';
 
