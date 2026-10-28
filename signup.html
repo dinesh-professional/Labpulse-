@@ -159,9 +159,17 @@
         <span class="text-xs uppercase tracking-wider font-bold">Email Verification</span>
       </div>
       <h1 class="text-2xl font-display font-black uppercase tracking-tight mb-2 text-vortex-white">Verify Your Account</h1>
-      <p class="text-vortex-gray mb-6 leading-relaxed">
+      <p class="text-vortex-gray mb-3 leading-relaxed">
         We sent a 6-digit verification code to <span id="otp-sent-email" class="text-vortex-cyan font-bold break-all"></span>. Enter it below to activate your account.
       </p>
+      <p class="text-[11px] text-vortex-gray/80 mb-5">
+        * Please check your Spam or Junk folder if it does not appear in your inbox immediately.
+      </p>
+
+      <div id="otp-dev-hint" class="hidden mb-5 p-3 bg-vortex-cyan/10 border border-vortex-cyan/40 text-vortex-cyan text-[11px] rounded flex items-center justify-between">
+        <span>Dev Code: <strong id="otp-dev-code" class="text-sm font-bold tracking-widest text-white ml-1"></strong></span>
+        <button type="button" id="otp-dev-autofill" class="underline uppercase text-[10px] text-vortex-cyan hover:text-white cursor-pointer ml-2">Auto-fill</button>
+      </div>
 
       <div id="otp-error" class="hidden mb-6 p-4 border border-vortex-rose/50 bg-vortex-rose/10 text-vortex-rose rounded" role="alert"></div>
       <div id="otp-success" class="hidden mb-6 p-4 border border-emerald-500/50 bg-emerald-500/10 text-emerald-400 rounded" role="status"></div>
@@ -227,9 +235,23 @@
       var otpResendBtn = document.getElementById('otp-resend-btn');
       var otpTimerSpan = document.getElementById('otp-timer');
       var otpChangeEmailBtn = document.getElementById('otp-change-email');
+      var otpDevHint = document.getElementById('otp-dev-hint');
+      var otpDevCode = document.getElementById('otp-dev-code');
+      var otpDevAutofill = document.getElementById('otp-dev-autofill');
 
       var currentRegisteredEmail = '';
       var timerInterval = null;
+
+      if (otpDevAutofill) {
+        otpDevAutofill.addEventListener('click', function () {
+          if (otpDevCode && otpDevCode.textContent) {
+            otpCodeInput.value = otpDevCode.textContent.trim();
+            clearOtpError();
+            if (otpCodeError) otpCodeError.classList.add('hidden');
+            otpCodeInput.focus();
+          }
+        });
+      }
 
       function showError(field, errorElem, msg) {
         if (errorElem) {
@@ -361,6 +383,13 @@
               otpSentEmail.textContent = email;
               otpCodeInput.value = '';
               clearOtpError();
+              var code = result.devOtp || (result.json && result.json.devOtp);
+              if (code && otpDevHint && otpDevCode) {
+                otpDevCode.textContent = code;
+                otpDevHint.classList.remove('hidden');
+              } else if (otpDevHint) {
+                otpDevHint.classList.add('hidden');
+              }
               startResendTimer();
               otpCodeInput.focus();
               return;
@@ -437,6 +466,11 @@
           if (res.ok) {
             otpSuccess.textContent = 'A new 6-digit verification code has been sent to your email.';
             otpSuccess.classList.remove('hidden');
+            var code = res.devOtp || (res.json && res.json.devOtp);
+            if (code && otpDevHint && otpDevCode) {
+              otpDevCode.textContent = code;
+              otpDevHint.classList.remove('hidden');
+            }
             setTimeout(function () { otpSuccess.classList.add('hidden'); }, 4000);
             startResendTimer();
           } else {

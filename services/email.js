@@ -23,6 +23,8 @@ function smtpConfig() {
   };
 }
 
+let cachedTransporter = null;
+
 function getTransporter() {
   let nodemailer;
   try {
@@ -32,14 +34,18 @@ function getTransporter() {
   }
   const c = smtpConfig();
   if (!c.host) throw new Error('SMTP_HOST is not set.');
-  return nodemailer.createTransport({
+  if (cachedTransporter) return cachedTransporter;
+
+  cachedTransporter = nodemailer.createTransport({
     host: c.host,
     port: c.port,
     secure: c.secure,
     auth: c.user ? { user: c.user, pass: c.pass } : undefined,
-    connectionTimeout: 8000,
-    greetingTimeout: 8000,
+    connectionTimeout: 25000,
+    greetingTimeout: 25000,
+    socketTimeout: 30000,
   });
+  return cachedTransporter;
 }
 
 function sleep(ms) {
@@ -60,6 +66,7 @@ async function sendSmtp({ to, subject, template, data }) {
       return { sent: true, attempts };
     } catch (err) {
       lastError = err;
+      cachedTransporter = null; // Reset cached transporter on error so next attempt reconnects cleanly
       const fatal = err && (err.code === 'EAUTH' || err.code === 'EMESSAGE' || err.responseCode === 535);
       if (process.env.NODE_ENV !== 'test') {
         console.warn(`[email:smtp] to=${to} template=${template} attempt=${attempts} failed: ${err.code || err.message}`);
@@ -73,6 +80,9 @@ async function sendSmtp({ to, subject, template, data }) {
 }
 
 async function sendEmail({ to, subject, template, data }) {
+  if (process.env.NODE_ENV !== 'production' && data && data.otp) {
+    console.log(`[email:otp] 🔑 OTP code for ${to}: ${data.otp}`);
+  }
   const provider = process.env.EMAIL_PROVIDER || 'dev';
   if (provider === 'smtp') {
     const outcome = await sendSmtp({ to, subject, template, data });

@@ -170,6 +170,7 @@
         message: r.json && r.json.message,
         requiresOtp: !!(r.json && r.json.requiresOtp),
         email: r.json && r.json.email,
+        devOtp: r.json && r.json.devOtp,
         json: r.json,
       };
     }
@@ -199,7 +200,13 @@
   async function resendOtp(email) {
     var r = await request('/api/v1/auth/resend-otp', { method: 'POST', body: { email: email } });
     if (r.status >= 200 && r.status < 300) {
-      return { ok: true, status: r.status, message: r.json && r.json.message };
+      return {
+        ok: true,
+        status: r.status,
+        message: r.json && r.json.message,
+        devOtp: r.json && r.json.devOtp,
+        json: r.json,
+      };
     }
     return {
       ok: false,

@@ -328,7 +328,7 @@ router.post('/signup', sensitiveLimiter, requireDB, async (req, res, next) => {
     const targetUserId = user._id || user.id;
 
     // Send OTP email (using Gmail SMTP)
-    await notifyUser({
+    const notifyOutcome = await notifyUser({
       userId: targetUserId,
       type: 'account-otp',
       title: 'LabPulse verification code',
@@ -341,11 +341,20 @@ router.post('/signup', sensitiveLimiter, requireDB, async (req, res, next) => {
       },
     });
 
+    if (process.env.NODE_ENV !== 'test') {
+      if (notifyOutcome && notifyOutcome.emailSent) {
+        console.log(`[auth:signup] OTP verification code delivered to ${normalizedEmail}`);
+      } else {
+        console.warn(`[auth:signup] Warning: Email delivery to ${normalizedEmail} failed (${(notifyOutcome && notifyOutcome.emailError) || 'undelivered'}). OTP code is: ${otp}`);
+      }
+    }
+
     return res.status(201).json({
       success: true,
       requiresOtp: true,
       email: normalizedEmail,
       message: 'Account created. Please enter the verification code sent to your email.',
+      ...(process.env.NODE_ENV !== 'production' ? { devOtp: otp } : {}),
     });
   } catch (err) { return next(err); }
 });
@@ -451,7 +460,7 @@ router.post('/resend-otp', sensitiveLimiter, requireDB, async (req, res, next) =
       otpAttempts: 0,
     });
 
-    await notifyUser({
+    const notifyOutcome = await notifyUser({
       userId,
       type: 'account-otp',
       title: 'LabPulse verification code',
@@ -464,7 +473,19 @@ router.post('/resend-otp', sensitiveLimiter, requireDB, async (req, res, next) =
       },
     });
 
-    return res.json({ success: true, message: 'A new verification code has been sent to your email.' });
+    if (process.env.NODE_ENV !== 'test') {
+      if (notifyOutcome && notifyOutcome.emailSent) {
+        console.log(`[auth:resend-otp] New OTP verification code delivered to ${user.email}`);
+      } else {
+        console.warn(`[auth:resend-otp] Warning: Email delivery to ${user.email} failed (${(notifyOutcome && notifyOutcome.emailError) || 'undelivered'}). OTP code is: ${otp}`);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: 'A new verification code has been sent to your email.',
+      ...(process.env.NODE_ENV !== 'production' ? { devOtp: otp } : {}),
+    });
   } catch (err) { return next(err); }
 });
 
