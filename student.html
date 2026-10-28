@@ -656,7 +656,22 @@
           return;
         }
 
-        statusLabel.textContent = dayData.available ? 'FULL DAY OPEN' : (dayData.blocks ? dayData.blocks.length + ' BLOCK(S)' : '');
+        if (!dayData.available && dayData.blocks && dayData.blocks.length) {
+          var reasons = Array.from(new Set(dayData.blocks.map(function (b) {
+            if (b.type === 'calibration_overdue') return 'Calibration Overdue';
+            if (b.type === 'status') return 'Status: ' + (b.reason || 'Unavailable');
+            if (b.type === 'schedule') return 'Class Lecture (' + (b.subject || 'Scheduled') + ')';
+            if (b.type === 'maintenance') return 'Under Maintenance';
+            if (b.type === 'calibration') return 'Under Calibration';
+            if (b.type === 'booking') return 'Reserved';
+            return b.reason || b.type || 'Blocked';
+          }))).join(', ');
+          statusLabel.textContent = 'BLOCKED: ' + reasons;
+          statusLabel.className = 'text-vortex-rose text-[11px] font-bold';
+        } else {
+          statusLabel.textContent = 'FULL DAY OPEN';
+          statusLabel.className = 'text-vortex-cyan text-[11px] font-bold';
+        }
 
         slots.forEach(function (slot) {
           var btn = document.createElement('button');
